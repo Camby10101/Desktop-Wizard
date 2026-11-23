@@ -4,6 +4,7 @@ import type { Effort, Habits, Settings, Theme } from '@shared/types'
 import type { BubbleAnchor } from './bubble/BubbleController'
 import { startsAtSignIn } from './autoStart'
 import { adoptFormerLoginItem } from './formerName'
+import { FEATURES, OS } from './platform'
 import { readJsonFile, writeJsonFile } from './storage/jsonFile'
 
 /** Fast answers by default; Balanced and Thorough think longer. */
@@ -64,7 +65,7 @@ export class SettingsService {
     if (app.isPackaged && !this.prefs.autoStartInitialized) {
       this.setAutoStart(true)
       await this.save({ autoStartInitialized: true })
-    } else if (app.isPackaged) {
+    } else if (app.isPackaged && OS === 'windows') {
       // Updated from Desktop Assist, Windows may still start the old .exe at sign-in.
       adoptFormerLoginItem(app.getPath('exe'), {
         startsAtLogin: (path) => app.getLoginItemSettings(path ? { path } : undefined).openAtLogin,
@@ -76,6 +77,7 @@ export class SettingsService {
   get(): Settings {
     const available = app.isPackaged
     return {
+      os: OS,
       // Read from Windows each time: the user can also switch it off in Windows' Settings > Apps >
       // Startup, which leaves the entry there but skips it (see startsAtSignIn).
       autoStart: available && startsAtSignIn(app.getLoginItemSettings()),
@@ -90,7 +92,8 @@ export class SettingsService {
       noHat: this.prefs.noHat ?? false,
       hideInFullScreen: this.prefs.hideInFullScreen ?? true,
       robeColor: this.prefs.robeColor ?? null,
-      canUninstall: available,
+      // On a Mac an app is uninstalled by dragging it to the Bin (FEATURES.uninstall).
+      canUninstall: available && FEATURES.uninstall,
     }
   }
 

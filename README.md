@@ -12,6 +12,8 @@ updates itself from Settings → Check for updates.
 - [docs/PLAN.md](docs/PLAN.md): the plan, architecture, milestones and decisions.
 - [docs/how-it-works.pdf](docs/how-it-works.pdf): new to the code? A guided tour of every part, with
   code examples, diagrams, walkthroughs of real moments, security, the tests and releasing.
+- [docs/MAC.md](docs/MAC.md): running on macOS: how Windows and Mac share one codebase, what works
+  on a Mac so far, and what's still to do.
 - [docs/CUSTOMIZING.md](docs/CUSTOMIZING.md): adding to the character (a habit, a toy, a
   performance, a colour), and where every part of her is.
 - [docs/code-guide/CODE_GUIDE.md](docs/code-guide/CODE_GUIDE.md): how the code fits together, with the code of every

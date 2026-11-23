@@ -3761,7 +3761,7 @@ PassiveView`, is a type guard: where it's true, TypeScript treats `view` as a `P
 
 <!-- code: apps/desktop/src/main/bubble/windows.ts#ON_TOP_LEVEL,ON_TOP_CHECK_MS -->
 
-[`src/main/bubble/windows.ts`, lines 11–22](../../apps/desktop/src/main/bubble/windows.ts#L11-L22)
+[`src/main/bubble/windows.ts`, lines 12–23](../../apps/desktop/src/main/bubble/windows.ts#L12-L23)
 
 ```ts
 /**
@@ -3801,7 +3801,7 @@ the windows' style: before, neither was on top; now both are.
 
 <!-- code: apps/desktop/src/main/bubble/windows.ts#createOverlayWindow -->
 
-[`src/main/bubble/windows.ts`, lines 24–91](../../apps/desktop/src/main/bubble/windows.ts#L24-L91)
+[`src/main/bubble/windows.ts`, lines 25–94](../../apps/desktop/src/main/bubble/windows.ts#L25-L94)
 
 ```ts
 /**
@@ -3838,8 +3838,9 @@ export function createOverlayWindow(
     fullscreenable: false,
     skipTaskbar: true,
     // Always on top, but at ON_TOP_LEVEL (set below); `alwaysOnTop: true` here would use
-    // Electron's default level, which loses it while a full-screen app is in front.
-    type: 'toolbar',
+    // Electron's default level, which loses it while a full-screen app is in front. A tool window
+    // on its OS (platform.ts): on Windows a toolbar window, kept off the taskbar and Alt+Tab.
+    ...overlayOptions(),
     // Both can take the focus. A bubble that couldn't had its mouse presses dropped by Windows /
     // Chromium after clicking elsewhere (only the release arrived, so clicks did nothing).
     // Clicking the bubble now takes the focus from an open panel; BubbleController.clickBubble
@@ -3856,6 +3857,7 @@ export function createOverlayWindow(
     },
   })
   win.setAlwaysOnTop(true, ON_TOP_LEVEL)
+  afterOverlayCreated(win)
   lockDown(win, view)
   if (view === 'panel') {
     win.setIgnoreMouseEvents(true, { forward: true })
@@ -3961,7 +3963,7 @@ them all).
 
 <!-- code: apps/desktop/src/main/bubble/windows.ts#keepOnTop -->
 
-[`src/main/bubble/windows.ts`, lines 93–109](../../apps/desktop/src/main/bubble/windows.ts#L93-L109)
+[`src/main/bubble/windows.ts`, lines 96–112](../../apps/desktop/src/main/bubble/windows.ts#L96-L112)
 
 ```ts
 /**
@@ -4005,7 +4007,7 @@ ON_TOP_LEVEL)`, which also puts the window at the top of the always-on-top windo
 
 <!-- code: apps/desktop/src/main/bubble/windows.ts#bringToFront -->
 
-[`src/main/bubble/windows.ts`, lines 111–123](../../apps/desktop/src/main/bubble/windows.ts#L111-L123)
+[`src/main/bubble/windows.ts`, lines 114–126](../../apps/desktop/src/main/bubble/windows.ts#L114-L126)
 
 ```ts
 /**
@@ -4038,7 +4040,7 @@ calls it for the bubble when Windows says something else is at the bubble's cent
 
 <!-- code: apps/desktop/src/main/bubble/windows.ts#bubbleSurface,panelSurface -->
 
-[`src/main/bubble/windows.ts`, lines 125–148](../../apps/desktop/src/main/bubble/windows.ts#L125-L148)
+[`src/main/bubble/windows.ts`, lines 128–151](../../apps/desktop/src/main/bubble/windows.ts#L128-L151)
 
 ```ts
 export function bubbleSurface(win: BrowserWindow): Surface {
@@ -4084,7 +4086,7 @@ forwards each call to the matching Electron method.
 
 <!-- code: apps/desktop/src/main/bubble/windows.ts#resetClickThrough -->
 
-[`src/main/bubble/windows.ts`, lines 150–162](../../apps/desktop/src/main/bubble/windows.ts#L150-L162)
+[`src/main/bubble/windows.ts`, lines 153–165](../../apps/desktop/src/main/bubble/windows.ts#L153-L165)
 
 ```ts
 /**
@@ -4122,7 +4124,7 @@ been hidden, for example for a screenshot.
 
 <!-- code: apps/desktop/src/main/bubble/windows.ts#lockDown -->
 
-[`src/main/bubble/windows.ts`, lines 164–173](../../apps/desktop/src/main/bubble/windows.ts#L164-L173)
+[`src/main/bubble/windows.ts`, lines 167–176](../../apps/desktop/src/main/bubble/windows.ts#L167-L176)
 
 ```ts
 function lockDown(win: BrowserWindow, view: View): void {
@@ -4157,7 +4159,7 @@ Basic safety and crash recovery for every overlay page.
 
 <!-- code: apps/desktop/src/main/bubble/windows.ts#addEditContextMenu -->
 
-[`src/main/bubble/windows.ts`, lines 175–196](../../apps/desktop/src/main/bubble/windows.ts#L175-L196)
+[`src/main/bubble/windows.ts`, lines 178–199](../../apps/desktop/src/main/bubble/windows.ts#L178-L199)
 
 ```ts
 /** Right-click menu for the text box: spelling suggestions plus the usual edit commands. */

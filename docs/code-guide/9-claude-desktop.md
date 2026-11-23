@@ -146,14 +146,17 @@ Builds the link for a question.
 
 <!-- code: apps/desktop/src/main/claudeDesktop.ts#pasteHint,sendHint,extraTextHint -->
 
-[`src/main/claudeDesktop.ts`, lines 17–40](../../apps/desktop/src/main/claudeDesktop.ts#L17-L40)
+[`src/main/claudeDesktop.ts`, lines 17–46](../../apps/desktop/src/main/claudeDesktop.ts#L17-L46)
 
 ```ts
-/** What to tell the user when their screenshots are on the clipboard, still to be pasted. */
-export function pasteHint(count: number): { title: string; body: string } {
+/**
+ * What to tell the user when their screenshots are on the clipboard, still to be pasted
+ * (`pasteKeys`: the paste shortcut on their OS).
+ */
+export function pasteHint(count: number, pasteKeys = 'Ctrl+V'): { title: string; body: string } {
   return {
     title: count === 1 ? 'Screenshot copied' : `${count} screenshots copied as one image`,
-    body: 'In Claude, press Ctrl+V to add it to your message, then send.',
+    body: `In Claude, press ${pasteKeys} to add it to your message, then send.`,
   }
 }
 
@@ -163,13 +166,16 @@ export function sendHint(): { title: string; body: string } {
 }
 
 /** What to tell the user when Claude's text box already had something else in it. */
-export function extraTextHint(screenshots: number): { title: string; body: string } {
+export function extraTextHint(
+  screenshots: number,
+  pasteKeys = 'Ctrl+V',
+): { title: string; body: string } {
   return {
     title: 'Check your question in Claude',
     body:
       "Claude's message box already had text in it, so it wasn't sent." +
       (screenshots > 0
-        ? ' Press Ctrl+V to add the screenshot, then send.'
+        ? ` Press ${pasteKeys} to add the screenshot, then send.`
         : ' Send it when ready.'),
   }
 }
@@ -193,7 +199,7 @@ The panel can't say it, because it closes as Claude Desktop opens. `finish()` (b
 
 <!-- code: apps/desktop/src/main/claudeDesktop.ts#AskOutcome,ClaudeDesktopDeps -->
 
-[`src/main/claudeDesktop.ts`, lines 42–60](../../apps/desktop/src/main/claudeDesktop.ts#L42-L60)
+[`src/main/claudeDesktop.ts`, lines 48–68](../../apps/desktop/src/main/claudeDesktop.ts#L48-L68)
 
 ```ts
 export type AskOutcome = { ok: true; screenshots: number } | Extract<AskResult, { ok: false }>
@@ -211,8 +217,10 @@ export interface ClaudeDesktopDeps {
    * Presses nothing anywhere else (see sendInClaude.ts).
    */
   sendInClaude(question: string, paste: boolean): Promise<SendOutcome>
-  /** A Windows notification, e.g. to say the screenshot is ready to paste. */
+  /** A notification, e.g. to say the screenshot is ready to paste. */
   notify(message: { title: string; body: string }): void
+  /** The paste shortcut on this OS, for messages (Ctrl+V unless given). */
+  pasteKeys?: string
   onError?(error: unknown): void
 }
 ```
@@ -243,7 +251,7 @@ draft is `ipc.ts`'s job, once it knows Claude Desktop has opened.
 
 <!-- code: apps/desktop/src/main/claudeDesktop.ts#ClaudeDesktop.class -->
 
-[`src/main/claudeDesktop.ts`, lines 62–68](../../apps/desktop/src/main/claudeDesktop.ts#L62-L68)
+[`src/main/claudeDesktop.ts`, lines 70–76](../../apps/desktop/src/main/claudeDesktop.ts#L70-L76)
 
 ```ts
 /**
@@ -267,7 +275,7 @@ and `ask()`.
 
 <!-- code: apps/desktop/src/main/claudeDesktop.ts#ClaudeDesktop.finishing,constructor,isInstalled -->
 
-[`src/main/claudeDesktop.ts`, lines 69–76](../../apps/desktop/src/main/claudeDesktop.ts#L69-L76)
+[`src/main/claudeDesktop.ts`, lines 77–84](../../apps/desktop/src/main/claudeDesktop.ts#L77-L84)
 
 ```ts
 private finishing: Promise<void> = Promise.resolve()
@@ -295,7 +303,7 @@ isInstalled(): boolean {
 
 <!-- code: apps/desktop/src/main/claudeDesktop.ts#ClaudeDesktop.ask -->
 
-[`src/main/claudeDesktop.ts`, lines 78–100](../../apps/desktop/src/main/claudeDesktop.ts#L78-L100)
+[`src/main/claudeDesktop.ts`, lines 86–108](../../apps/desktop/src/main/claudeDesktop.ts#L86-L108)
 
 ```ts
 /**
@@ -355,7 +363,7 @@ touched until they've all passed.
 
 <!-- code: apps/desktop/src/main/claudeDesktop.ts#ClaudeDesktop.idle -->
 
-[`src/main/claudeDesktop.ts`, lines 102–105](../../apps/desktop/src/main/claudeDesktop.ts#L102-L105)
+[`src/main/claudeDesktop.ts`, lines 110–113](../../apps/desktop/src/main/claudeDesktop.ts#L110-L113)
 
 ```ts
 /** Resolves when the last question has been sent in Claude, or the user told what to do. */
@@ -374,7 +382,7 @@ for the tests, which `await claude.idle()` before checking what happened.
 
 <!-- code: apps/desktop/src/main/claudeDesktop.ts#ClaudeDesktop.finish -->
 
-[`src/main/claudeDesktop.ts`, lines 107–130](../../apps/desktop/src/main/claudeDesktop.ts#L107-L130)
+[`src/main/claudeDesktop.ts`, lines 115–142](../../apps/desktop/src/main/claudeDesktop.ts#L115-L142)
 
 ```ts
 /**
@@ -385,7 +393,7 @@ for the tests, which `await claude.idle()` before checking what happened.
  */
 private async finish(text: string, screenshots: number): Promise<void> {
   if (!this.deps.autoSend() || !text.trim()) {
-    if (screenshots > 0) this.deps.notify(pasteHint(screenshots))
+    if (screenshots > 0) this.deps.notify(pasteHint(screenshots, this.deps.pasteKeys))
     return
   }
   const outcome = await this.deps
@@ -395,11 +403,15 @@ private async finish(text: string, screenshots: number): Promise<void> {
       return 'failed'
     })
   if (outcome === 'sent') return
-  if (outcome === 'extra-text') return this.deps.notify(extraTextHint(screenshots))
+  if (outcome === 'extra-text') {
+    return this.deps.notify(extraTextHint(screenshots, this.deps.pasteKeys))
+  }
   // Nothing was pressed: the screenshot (if any) still needs pasting. Otherwise it was pasted
   // and only Enter is left.
   const pasted = outcome === 'focus-lost' || outcome === 'not-sent'
-  this.deps.notify(screenshots > 0 && !pasted ? pasteHint(screenshots) : sendHint())
+  this.deps.notify(
+    screenshots > 0 && !pasted ? pasteHint(screenshots, this.deps.pasteKeys) : sendHint(),
+  )
 }
 ```
 

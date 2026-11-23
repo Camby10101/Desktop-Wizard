@@ -14,11 +14,14 @@ export function newChatLink(text: string): string {
   return text.trim() ? `${NEW_CHAT_LINK}?q=${encodeURIComponent(text)}` : NEW_CHAT_LINK
 }
 
-/** What to tell the user when their screenshots are on the clipboard, still to be pasted. */
-export function pasteHint(count: number): { title: string; body: string } {
+/**
+ * What to tell the user when their screenshots are on the clipboard, still to be pasted
+ * (`pasteKeys`: the paste shortcut on their OS).
+ */
+export function pasteHint(count: number, pasteKeys = 'Ctrl+V'): { title: string; body: string } {
   return {
     title: count === 1 ? 'Screenshot copied' : `${count} screenshots copied as one image`,
-    body: 'In Claude, press Ctrl+V to add it to your message, then send.',
+    body: `In Claude, press ${pasteKeys} to add it to your message, then send.`,
   }
 }
 
@@ -28,13 +31,16 @@ export function sendHint(): { title: string; body: string } {
 }
 
 /** What to tell the user when Claude's text box already had something else in it. */
-export function extraTextHint(screenshots: number): { title: string; body: string } {
+export function extraTextHint(
+  screenshots: number,
+  pasteKeys = 'Ctrl+V',
+): { title: string; body: string } {
   return {
     title: 'Check your question in Claude',
     body:
       "Claude's message box already had text in it, so it wasn't sent." +
       (screenshots > 0
-        ? ' Press Ctrl+V to add the screenshot, then send.'
+        ? ` Press ${pasteKeys} to add the screenshot, then send.`
         : ' Send it when ready.'),
   }
 }
@@ -54,8 +60,10 @@ export interface ClaudeDesktopDeps {
    * Presses nothing anywhere else (see sendInClaude.ts).
    */
   sendInClaude(question: string, paste: boolean): Promise<SendOutcome>
-  /** A Windows notification, e.g. to say the screenshot is ready to paste. */
+  /** A notification, e.g. to say the screenshot is ready to paste. */
   notify(message: { title: string; body: string }): void
+  /** The paste shortcut on this OS, for messages (Ctrl+V unless given). */
+  pasteKeys?: string
   onError?(error: unknown): void
 }
 
@@ -112,7 +120,7 @@ export class ClaudeDesktop {
    */
   private async finish(text: string, screenshots: number): Promise<void> {
     if (!this.deps.autoSend() || !text.trim()) {
-      if (screenshots > 0) this.deps.notify(pasteHint(screenshots))
+      if (screenshots > 0) this.deps.notify(pasteHint(screenshots, this.deps.pasteKeys))
       return
     }
     const outcome = await this.deps
@@ -122,10 +130,14 @@ export class ClaudeDesktop {
         return 'failed'
       })
     if (outcome === 'sent') return
-    if (outcome === 'extra-text') return this.deps.notify(extraTextHint(screenshots))
+    if (outcome === 'extra-text') {
+      return this.deps.notify(extraTextHint(screenshots, this.deps.pasteKeys))
+    }
     // Nothing was pressed: the screenshot (if any) still needs pasting. Otherwise it was pasted
     // and only Enter is left.
     const pasted = outcome === 'focus-lost' || outcome === 'not-sent'
-    this.deps.notify(screenshots > 0 && !pasted ? pasteHint(screenshots) : sendHint())
+    this.deps.notify(
+      screenshots > 0 && !pasted ? pasteHint(screenshots, this.deps.pasteKeys) : sendHint(),
+    )
   }
 }

@@ -40,7 +40,7 @@ tests can drive them with fakes. `index.ts` is the only file that knows about al
 
 <!-- code: apps/desktop/src/main/index.ts#SHUTDOWN_TIMEOUT_MS,controller,tray,refusedSwitches -->
 
-[`src/main/index.ts`, lines 91–114](../../apps/desktop/src/main/index.ts#L91-L114)
+[`src/main/index.ts`, lines 92–115](../../apps/desktop/src/main/index.ts#L92-L115)
 
 ```ts
 const SHUTDOWN_TIMEOUT_MS = 2000
@@ -124,10 +124,12 @@ backend, the conversation and the JumpCloud sign-in) are in a separate function,
 
 <!-- code: apps/desktop/src/main/index.ts#start.tenant -->
 
-[`src/main/index.ts`, line 131](../../apps/desktop/src/main/index.ts#L131)
+[`src/main/index.ts`, lines 133–135](../../apps/desktop/src/main/index.ts#L133-L135)
 
 ```ts
-const tenant = await withDevOverrides(TenantSchema.parse(tenantConfig))
+// Updating from GitHub installs Windows' installer: not on a Mac yet (docs/MAC.md), where Check
+// for updates isn't offered.
+const tenant = FEATURES.updates ? loaded : { ...loaded, updates: undefined }
 ```
 
 <!-- /code -->
@@ -153,7 +155,7 @@ const tenant = await withDevOverrides(TenantSchema.parse(tenantConfig))
 
 <!-- code: apps/desktop/src/main/index.ts#start.userData,screenshotsDir,actionCount,log,notes,settings -->
 
-[`src/main/index.ts`, lines 135–146](../../apps/desktop/src/main/index.ts#L135-L146)
+[`src/main/index.ts`, lines 139–150](../../apps/desktop/src/main/index.ts#L139-L150)
 
 ```ts
 const userData = app.getPath('userData')
@@ -193,7 +195,7 @@ const settings = new SettingsService(join(userData, 'preferences.json'), screens
 
 <!-- code: apps/desktop/src/main/index.ts#start.bubbleWindow,panelWindow,windows,stopKeepingOnTop,windowsReady,broadcast -->
 
-[`src/main/index.ts`, lines 152–165](../../apps/desktop/src/main/index.ts#L152-L165)
+[`src/main/index.ts`, lines 156–169](../../apps/desktop/src/main/index.ts#L156-L169)
 
 ```ts
 const bubbleWindow = createOverlayWindow('bubble', { width: box, height: box + headroom })
@@ -259,7 +261,7 @@ included. By the time a page's request is handled, its handler has been register
 
 <!-- code: apps/desktop/src/main/index.ts#start.openOverlay,vision,effects -->
 
-[`src/main/index.ts`, lines 167–196](../../apps/desktop/src/main/index.ts#L167-L196)
+[`src/main/index.ts`, lines 171–200](../../apps/desktop/src/main/index.ts#L171-L200)
 
 ```ts
 /**
@@ -348,7 +350,7 @@ below).
 
 <!-- code: apps/desktop/src/main/index.ts#start.bubble -->
 
-[`src/main/index.ts`, lines 309–343](../../apps/desktop/src/main/index.ts#L309-L343)
+[`src/main/index.ts`, lines 312–346](../../apps/desktop/src/main/index.ts#L312-L346)
 
 ```ts
 const bubble = new BubbleController({
@@ -444,7 +446,7 @@ here.
 
 <!-- code: apps/desktop/src/main/index.ts#start.clones,castSpell -->
 
-[`src/main/index.ts`, lines 359–415](../../apps/desktop/src/main/index.ts#L359-L415)
+[`src/main/index.ts`, lines 362–418](../../apps/desktop/src/main/index.ts#L362-L418)
 
 ```ts
 // Her clones: a window along the taskbar.
@@ -519,7 +521,7 @@ the Spells menu.
 
 <!-- code: apps/desktop/src/main/index.ts#start.screenSaver -->
 
-[`src/main/index.ts`, lines 367–395](../../apps/desktop/src/main/index.ts#L367-L395)
+[`src/main/index.ts`, lines 370–398](../../apps/desktop/src/main/index.ts#L370-L398)
 
 ```ts
 // The screen saver: a window over the whole of every display, in front of the taskbar too (from
@@ -599,7 +601,7 @@ check; their pages call in only to say the user is back, which `registerIpc()` a
 
 <!-- code: apps/desktop/src/main/index.ts#start.screenshots,notify,copyScreenshots -->
 
-[`src/main/index.ts`, lines 417–438](../../apps/desktop/src/main/index.ts#L417-L438)
+[`src/main/index.ts`, lines 420–441](../../apps/desktop/src/main/index.ts#L420-L441)
 
 ```ts
 const screenshots = new ScreenshotService(screenshotsDir, () =>
@@ -657,7 +659,7 @@ const copyScreenshots = async (paths: string[]) => {
 
 <!-- code: apps/desktop/src/main/index.ts#start.builtIn,claudeDesktop -->
 
-[`src/main/index.ts`, lines 441–470](../../apps/desktop/src/main/index.ts#L441-L470)
+[`src/main/index.ts`, lines 444–476](../../apps/desktop/src/main/index.ts#L444-L476)
 
 ```ts
 const builtIn =
@@ -680,7 +682,10 @@ const claudeDesktop =
         isInstalled: () => app.getApplicationNameForProtocol(NEW_CHAT_LINK) !== '',
         openLink: (url) => shell.openExternal(url),
         copyScreenshots,
-        autoSend: () => settings.get().autoSend,
+        // Pressing send for the user is Windows only (UI Automation); on a Mac the question is
+        // filled in, for the user to send.
+        autoSend: () => FEATURES.sendInClaude && settings.get().autoSend,
+        pasteKeys: FEATURES.pasteKeys,
         sendInClaude: async (question, paste) => {
           const outcome = await sendInClaude({ question, paste })
           // Not a failure as such (the user is told to finish in Claude), but worth knowing.
@@ -736,7 +741,7 @@ exists.
 
 <!-- code: apps/desktop/src/main/index.ts#start.netFetch,updater -->
 
-[`src/main/index.ts`, lines 471–501](../../apps/desktop/src/main/index.ts#L471-L501)
+[`src/main/index.ts`, lines 477–507](../../apps/desktop/src/main/index.ts#L477-L507)
 
 ```ts
 // Electron's fetch, so a proxy set in Windows is used.
@@ -816,7 +821,7 @@ const updater = updates
 
 <!-- code: apps/desktop/src/main/index.ts#start.appsStatus,portalApps -->
 
-[`src/main/index.ts`, lines 503–525](../../apps/desktop/src/main/index.ts#L503-L525)
+[`src/main/index.ts`, lines 509–531](../../apps/desktop/src/main/index.ts#L509-L531)
 
 ```ts
 let appsStatus: AppsState['status'] = 'loading'
@@ -881,7 +886,7 @@ icon (see [Your apps](10-apps.md)). It's only set up when the tenant has a `port
 
 <!-- code: apps/desktop/src/main/index.ts#start.requests,memoryPath,atlassianStatus,atlassian,desk -->
 
-[`src/main/index.ts`, lines 530–599](../../apps/desktop/src/main/index.ts#L530-L599)
+[`src/main/index.ts`, lines 536–605](../../apps/desktop/src/main/index.ts#L536-L605)
 
 ```ts
 const requests = serviceDesk?.requests
@@ -1010,7 +1015,7 @@ Two statements follow:
 
 <!-- code: apps/desktop/src/main/index.ts#start.onDisplayChange -->
 
-[`src/main/index.ts`, lines 668–672](../../apps/desktop/src/main/index.ts#L668-L672)
+[`src/main/index.ts`, lines 674–678](../../apps/desktop/src/main/index.ts#L674-L678)
 
 ```ts
 const onDisplayChange = () => {
@@ -1081,7 +1086,7 @@ Everything else in this part of `start()` is plain statements:
 
 <!-- code: apps/desktop/src/main/index.ts#start.shuttingDown -->
 
-[`src/main/index.ts`, lines 677–678](../../apps/desktop/src/main/index.ts#L677-L678)
+[`src/main/index.ts`, lines 683–684](../../apps/desktop/src/main/index.ts#L683-L684)
 
 ```ts
 // Save the text box before quitting. before-quit fires again after the second app.quit().
@@ -1126,20 +1131,24 @@ there, and none of it is lost before the window shows.
 
 <!-- code: apps/desktop/src/main/index.ts#start.stopWatchingFront -->
 
-[`src/main/index.ts`, lines 707–717](../../apps/desktop/src/main/index.ts#L707-L717)
+[`src/main/index.ts`, lines 713–727](../../apps/desktop/src/main/index.ts#L713-L727)
 
 ```ts
-// For its first ten minutes, make sure the bubble isn't stuck behind other apps' windows.
-const stopWatchingFront = watchBubbleFront({
-  isResting: () => bubble.currentMode === 'collapsed',
-  check: () =>
-    runFrontCheck(
-      bubbleWindow.getNativeWindowHandle().readBigUInt64LE(0).toString(),
-      process.pid,
-    ),
-  bringToFront: (reshow) => bringToFront(bubbleWindow, reshow),
-  log,
-})
+// For its first ten minutes, make sure the bubble isn't stuck behind other apps' windows (a
+// check made with Windows' own shell, so Windows only).
+const stopWatchingFront =
+  OS !== 'windows'
+    ? () => {}
+    : watchBubbleFront({
+        isResting: () => bubble.currentMode === 'collapsed',
+        check: () =>
+          runFrontCheck(
+            bubbleWindow.getNativeWindowHandle().readBigUInt64LE(0).toString(),
+            process.pid,
+          ),
+        bringToFront: (reshow) => bringToFront(bubbleWindow, reshow),
+        log,
+      })
 ```
 
 <!-- /code -->
@@ -1178,7 +1187,7 @@ was part of `start()`. It returns a [`BuiltInChat`](#builtinchat): the `AuthMana
 
 <!-- code: apps/desktop/src/main/index.ts#startBuiltInChat.devBaseUrl,lastIdToken,backend,chat -->
 
-[`src/main/index.ts`, lines 737–761](../../apps/desktop/src/main/index.ts#L737-L761)
+[`src/main/index.ts`, lines 747–771](../../apps/desktop/src/main/index.ts#L747-L771)
 
 ```ts
 // Dev runs may point at a local test server; an installed app always talks to Anthropic.
@@ -1251,7 +1260,7 @@ const chat = new ChatSession({
 
 <!-- code: apps/desktop/src/main/index.ts#startBuiltInChat.missing,localIssuer,authState,auth -->
 
-[`src/main/index.ts`, lines 763–787](../../apps/desktop/src/main/index.ts#L763-L787)
+[`src/main/index.ts`, lines 773–797](../../apps/desktop/src/main/index.ts#L773-L797)
 
 ```ts
 const missing = missingSettings(signIn, claudeAccess)
@@ -1328,7 +1337,7 @@ Two statements end the function:
 
 <!-- code: apps/desktop/src/main/index.ts#safeStorageEncryptor -->
 
-[`src/main/index.ts`, lines 793–798](../../apps/desktop/src/main/index.ts#L793-L798)
+[`src/main/index.ts`, lines 803–808](../../apps/desktop/src/main/index.ts#L803-L808)
 
 ```ts
 /** Windows DPAPI through Electron: only this Windows user can decrypt what it encrypts. */
@@ -1356,7 +1365,7 @@ The encryption `SecretStore` uses for the saved sign-in. `SecretStore` only know
 
 <!-- code: apps/desktop/src/main/index.ts#withDevOverrides -->
 
-[`src/main/index.ts`, lines 800–823](../../apps/desktop/src/main/index.ts#L800-L823)
+[`src/main/index.ts`, lines 810–833](../../apps/desktop/src/main/index.ts#L810-L833)
 
 ```ts
 /**
@@ -1412,7 +1421,7 @@ example to try the built-in chat against a test identity provider, without editi
 
 <!-- code: apps/desktop/src/main/index.ts#isLoopback -->
 
-[`src/main/index.ts`, lines 825–827](../../apps/desktop/src/main/index.ts#L825-L827)
+[`src/main/index.ts`, lines 835–837](../../apps/desktop/src/main/index.ts#L835-L837)
 
 ```ts
 function isLoopback(url: URL): boolean {
@@ -1430,7 +1439,7 @@ in `hostname`. Used only to decide whether plain `http` is allowed for a dev ide
 
 <!-- code: apps/desktop/src/main/index.ts#toArea,electronDisplays -->
 
-[`src/main/index.ts`, lines 829–844](../../apps/desktop/src/main/index.ts#L829-L844)
+[`src/main/index.ts`, lines 839–854](../../apps/desktop/src/main/index.ts#L839-L854)
 
 ```ts
 /** Electron's `screen`, in the shape the bubble controller uses. All coordinates are DIPs. */
@@ -1477,7 +1486,7 @@ method is called, which happens after `start()` has begun.
 
 <!-- code: apps/desktop/src/main/index.ts#fail -->
 
-[`src/main/index.ts`, lines 846–850](../../apps/desktop/src/main/index.ts#L846-L850)
+[`src/main/index.ts`, lines 856–860](../../apps/desktop/src/main/index.ts#L856-L860)
 
 ```ts
 function fail(error: unknown): void {
@@ -4281,7 +4290,7 @@ IPC channels, and its size buttons through `characterSetSize`.
 
 <!-- code: apps/desktop/src/main/settings.ts#DEFAULT_EFFORT,PreferencesSchema,Preferences -->
 
-[`src/main/settings.ts`, lines 9–44](../../apps/desktop/src/main/settings.ts#L9-L44)
+[`src/main/settings.ts`, lines 10–45](../../apps/desktop/src/main/settings.ts#L10-L45)
 
 ```ts
 /** Fast answers by default; Balanced and Thorough think longer. */
@@ -4351,7 +4360,7 @@ type Preferences = z.infer<typeof PreferencesSchema>
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.prefs,saving,constructor -->
 
-[`src/main/settings.ts`, lines 47–53](../../apps/desktop/src/main/settings.ts#L47-L53)
+[`src/main/settings.ts`, lines 48–54](../../apps/desktop/src/main/settings.ts#L48-L54)
 
 ```ts
 private prefs: Preferences = {}
@@ -4381,7 +4390,7 @@ constructor(
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.init -->
 
-[`src/main/settings.ts`, lines 55–74](../../apps/desktop/src/main/settings.ts#L55-L74)
+[`src/main/settings.ts`, lines 56–75](../../apps/desktop/src/main/settings.ts#L56-L75)
 
 ```ts
 /**
@@ -4396,7 +4405,7 @@ async init(): Promise<void> {
   if (app.isPackaged && !this.prefs.autoStartInitialized) {
     this.setAutoStart(true)
     await this.save({ autoStartInitialized: true })
-  } else if (app.isPackaged) {
+  } else if (app.isPackaged && OS === 'windows') {
     // Updated from Desktop Assist, Windows may still start the old .exe at sign-in.
     adoptFormerLoginItem(app.getPath('exe'), {
       startsAtLogin: (path) => app.getLoginItemSettings(path ? { path } : undefined).openAtLogin,
@@ -4435,12 +4444,13 @@ Loads the file once at startup (called from `start()`).
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.get -->
 
-[`src/main/settings.ts`, lines 76–95](../../apps/desktop/src/main/settings.ts#L76-L95)
+[`src/main/settings.ts`, lines 77–98](../../apps/desktop/src/main/settings.ts#L77-L98)
 
 ```ts
 get(): Settings {
   const available = app.isPackaged
   return {
+    os: OS,
     // Read from Windows each time: the user can also switch it off in Windows' Settings > Apps >
     // Startup, which leaves the entry there but skips it (see startsAtSignIn).
     autoStart: available && startsAtSignIn(app.getLoginItemSettings()),
@@ -4455,7 +4465,8 @@ get(): Settings {
     noHat: this.prefs.noHat ?? false,
     hideInFullScreen: this.prefs.hideInFullScreen ?? true,
     robeColor: this.prefs.robeColor ?? null,
-    canUninstall: available,
+    // On a Mac an app is uninstalled by dragging it to the Bin (FEATURES.uninstall).
+    canUninstall: available && FEATURES.uninstall,
   }
 }
 ```
@@ -4482,7 +4493,7 @@ The current settings, as the Settings menu shows them (`Settings` in `src/shared
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setAutoStart -->
 
-[`src/main/settings.ts`, lines 97–104](../../apps/desktop/src/main/settings.ts#L97-L104)
+[`src/main/settings.ts`, lines 100–107](../../apps/desktop/src/main/settings.ts#L100-L107)
 
 ```ts
 /**
@@ -4506,7 +4517,7 @@ settings, so the menu shows what actually happened; in a dev run that's still "o
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setEffort,setAutoSend -->
 
-[`src/main/settings.ts`, lines 106–114](../../apps/desktop/src/main/settings.ts#L106-L114)
+[`src/main/settings.ts`, lines 109–117](../../apps/desktop/src/main/settings.ts#L109-L117)
 
 ```ts
 async setEffort(effort: Effort): Promise<Settings> {
@@ -4531,7 +4542,7 @@ dependency each time it hands a question over.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setTheme -->
 
-[`src/main/settings.ts`, lines 116–124](../../apps/desktop/src/main/settings.ts#L116-L124)
+[`src/main/settings.ts`, lines 119–127](../../apps/desktop/src/main/settings.ts#L119-L127)
 
 ```ts
 /**
@@ -4561,7 +4572,7 @@ Switches every Desktop Wizard window between light and dark, and saves the choic
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setHabits -->
 
-[`src/main/settings.ts`, lines 126–130](../../apps/desktop/src/main/settings.ts#L126-L130)
+[`src/main/settings.ts`, lines 129–133](../../apps/desktop/src/main/settings.ts#L129-L133)
 
 ```ts
 /** Whether she wanders about, does her idle animations, and wears her hat (any of them). */
@@ -4589,7 +4600,7 @@ own.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setFavoriteApp -->
 
-[`src/main/settings.ts`, lines 144–149](../../apps/desktop/src/main/settings.ts#L144-L149)
+[`src/main/settings.ts`, lines 147–152](../../apps/desktop/src/main/settings.ts#L147-L152)
 
 ```ts
 /** Stars an app in the Apps list, or takes its star away. */
@@ -4614,7 +4625,7 @@ list, which the panel adopts.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.bubbleAnchor,setBubbleAnchor -->
 
-[`src/main/settings.ts`, lines 151–157](../../apps/desktop/src/main/settings.ts#L151-L157)
+[`src/main/settings.ts`, lines 154–160](../../apps/desktop/src/main/settings.ts#L154-L160)
 
 ```ts
 get bubbleAnchor(): BubbleAnchor | null {
@@ -4638,7 +4649,7 @@ settles near the other bottom corner or on another display.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.characterScale,setCharacterScale -->
 
-[`src/main/settings.ts`, lines 159–166](../../apps/desktop/src/main/settings.ts#L159-L166)
+[`src/main/settings.ts`, lines 162–169](../../apps/desktop/src/main/settings.ts#L162-L169)
 
 ```ts
 /** Her size as chosen in Settings, or null if it's never been changed. */
@@ -4664,7 +4675,7 @@ has room for less.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.save -->
 
-[`src/main/settings.ts`, lines 168–175](../../apps/desktop/src/main/settings.ts#L168-L175)
+[`src/main/settings.ts`, lines 171–178](../../apps/desktop/src/main/settings.ts#L171-L178)
 
 ```ts
 private async save(changes: Preferences): Promise<void> {

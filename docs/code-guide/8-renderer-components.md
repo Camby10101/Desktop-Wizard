@@ -1351,7 +1351,7 @@ Esc, on a click anywhere else in the panel, and when the panel closes.
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#CONFIRM_MS,EFFORTS -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 21–27](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L21-L27)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 22–28](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L22-L28)
 
 ```tsx
 const CONFIRM_MS = 3000
@@ -1376,7 +1376,7 @@ const EFFORTS: { value: Effort; label: string; hint: string }[] = [
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#SettingsMenu -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 29–289](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L29-L289)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 30–298](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L30-L298)
 
 ```tsx
 /** The menu that opens beside the gear icon, on the side facing the middle of the screen. */
@@ -1429,6 +1429,8 @@ export function SettingsMenu(props: {
   }, [confirmingUninstall])
 
   const { settings, branding } = props
+  // What works on this OS, and what things are called there.
+  const features = OS_FEATURES[settings.os]
   // Beside the gear, but never past the top of the window: it's a long menu.
   const menu = useRef<HTMLDivElement>(null)
   const fit = useFitInWindow(menu, props.offset)
@@ -1486,16 +1488,18 @@ export function SettingsMenu(props: {
         on={settings.noHat}
         onToggle={() => props.onSetHabits({ noHat: !settings.noHat })}
       />
-      <ToggleRow
-        label="Hide in full-screen apps"
-        hint={
-          settings.hideInFullScreen
-            ? 'She steps aside for presentations, videos and games'
-            : 'She stays on top of everything'
-        }
-        on={settings.hideInFullScreen}
-        onToggle={props.onToggleHideInFullScreen}
-      />
+      {features.shellProbe && (
+        <ToggleRow
+          label="Hide in full-screen apps"
+          hint={
+            settings.hideInFullScreen
+              ? 'She steps aside for presentations, videos and games'
+              : 'She stays on top of everything'
+          }
+          on={settings.hideInFullScreen}
+          onToggle={props.onToggleHideInFullScreen}
+        />
+      )}
 
       <div className="my-1 border-t border-black/10 dark:border-white/10" />
 
@@ -1513,7 +1517,7 @@ export function SettingsMenu(props: {
         )}
       >
         <span>
-          Start with Windows
+          {features.startAtLogin}
           {!settings.autoStartAvailable && (
             <span className="block text-[11px] text-zinc-500">Only in the installed app</span>
           )}
@@ -1521,7 +1525,7 @@ export function SettingsMenu(props: {
         <Switch on={settings.autoStart} />
       </button>
 
-      {!builtInChat && (
+      {!builtInChat && features.sendInClaude && (
         <ToggleRow
           label="Send in Claude automatically"
           hint={settings.autoSend ? 'Questions are sent for you' : 'You press Enter in Claude'}
@@ -1629,7 +1633,11 @@ export function SettingsMenu(props: {
         >
           {confirmingUninstall ? 'Click again to uninstall' : `Uninstall ${branding.appName}`}
           {!settings.canUninstall && (
-            <span className="block text-[11px] text-zinc-500">Only in the installed app</span>
+            <span className="block text-[11px] text-zinc-500">
+              {features.uninstall
+                ? 'Only in the installed app'
+                : 'Drag it from Applications to the Bin'}
+            </span>
           )}
         </MenuItem>
       </div>
@@ -1764,7 +1772,7 @@ switches the "New conversation" (or "Clear text box") row into its "Click again"
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#UpdateItem -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 291–329](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L291-L329)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 300–338](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L300-L338)
 
 ```tsx
 /** Check for updates, showing how it's going: checking, downloading, installing, or the answer. */
@@ -1833,7 +1841,7 @@ whole job happens in the main process (`Updater` in `src/main/updates.ts`; see
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#MenuItem -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 331–360](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L331-L360)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 340–369](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L340-L369)
 
 ```tsx
 function MenuItem(props: {
@@ -1888,7 +1896,7 @@ One row of the menu: an icon and a label, as a button.
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#ToggleRow -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 362–379](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L362-L379)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 371–388](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L371-L388)
 
 ```tsx
 /** A setting that's on or off: its name, a line saying what it does now, and its switch. */
@@ -1931,7 +1939,7 @@ switches there would have been four copies of the same lines, which would only d
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#Switch -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 381–398](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L381-L398)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 390–407](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L390-L407)
 
 ```tsx
 function Switch({ on }: { on: boolean }) {
