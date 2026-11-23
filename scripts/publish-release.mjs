@@ -1,7 +1,7 @@
 // Publishes the release on GitHub in one go (`npm run release`), once `npm run dist` has built and
 // signed the installer and the version is merged and pushed to main (see docs/RELEASING.md):
 // checks the installer's signature is the release key's for this version, creates the GitHub
-// release tagged v<version> on main (or uses the one there), attaches the installer and its
+// release tagged with the version (2.7.0, no v) on main (or uses the one there), attaches the installer and its
 // signature (replacing a wrong one), and checks the release is there as copies look for it.
 //
 //   npm run release                          publish (needs GITHUB_TOKEN; see below)
@@ -44,7 +44,8 @@ export function releasePlan(root = ROOT, tenantName = process.env.TENANT ?? 'mor
   }
   return {
     version: app.version,
-    tag: `v${app.version}`,
+    // The version itself, no `v` in front (copies take either, but releases are tagged without).
+    tag: app.version,
     repo: tenant.updates.repo,
     publicKey: tenant.updates.publicKey,
     files: files.map((path) => ({ path, name: basename(path), size: statSync(path).size })),

@@ -74,7 +74,7 @@ npm version 2.0.1 --no-git-tag-version -w apps/desktop
 
 The version is what Settings shows at the bottom, what the installer is named after, and what
 the app compares with the releases on GitHub: a copy only updates to a **higher** version. The
-release's tag can be `v2.0.1` or `2.0.1`. The order releases are published in doesn't matter, nor
+release's tag is the version, `2.0.1` (copies also accept `v2.0.1`, but releases are tagged without the `v`). The order releases are published in doesn't matter, nor
 which one GitHub marks as "latest": the highest version wins (copies before 2.3.0 go by GitHub's
 "latest", so keep the newest version marked as the latest release).
 
@@ -118,7 +118,7 @@ npm run release
 
 It checks the installer in `installer/` is signed with the release key for this version, that this
 is `main` with nothing uncommitted and the same as `main` on GitHub, then creates the GitHub release
-tagged `v<version>` on `main` (titled `Desktop Wizard <version>`, its notes written by GitHub from
+tagged with the version (`2.0.1`, no `v`) on `main` (titled `Desktop Wizard <version>`, its notes written by GitHub from
 the commits since the last release), attaches the installer and its signature, and checks both are
 there, the way copies look for them. Run again, it finishes whatever's left: a release already
 there is used (a draft or pre-release is published), a file already attached is left, and a wrong
@@ -145,7 +145,7 @@ one is replaced. `scripts/publish-release.mjs` does it.
 The same, on GitHub's site, if the script can't be used:
 
 1. On GitHub, open the repository's **Releases** and choose **Draft a new release**.
-2. **Choose a tag**: type `v` and the version, e.g. `v2.0.1`, and choose **Create new tag on
+2. **Choose a tag**: type the version, e.g. `2.0.1` (no `v`), and choose **Create new tag on
    publish**, targeting `main`. The tag must be the version (with or without the `v`); a tag that
    isn't a version (`latest`, `beta`) is ignored by the app.
 3. **Title**: e.g. `Desktop Wizard 2.0.1`, and a few lines on what's new.
@@ -217,7 +217,7 @@ with `npm run dev` or the built `out/` folder, as the automated tests do.
 ## Troubleshooting
 
 - **"Up to date" but there's a newer release**: check the release isn't a draft or pre-release, its
-  tag is a version (`v2.0.1`), and the `.exe` is attached. The copy compares versions, so check the
+  tag is a version (`2.0.1`), and the `.exe` is attached. The copy compares versions, so check the
   release's version is higher than the one at the bottom of Settings.
 - **"Didn't install … It isn't signed with the release key"**: the `.sig` isn't attached ("the
   release has no signature"), or it was made for another file, version or key ("its signature
