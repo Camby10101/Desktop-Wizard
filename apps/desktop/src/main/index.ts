@@ -57,8 +57,7 @@ import { registerIpc, type BuiltInChat } from './ipc'
 import { createLog, type Log } from './log'
 import { mcpConnector } from './mcp/connector'
 import { sendInClaude } from './sendInClaude'
-import { uninstall } from './uninstall'
-import { INSTALLER_ARGS, saveDownload, Updater } from './updates'
+import { saveDownload, Updater } from './updates'
 import { NotesStore } from './notes/NotesStore'
 import { ScreenshotService } from './screenshots/ScreenshotService'
 import { myRequestsUrl, ServiceDesk, windowsVersion } from './serviceDesk'
@@ -87,6 +86,15 @@ import {
   type Tenant,
 } from './tenant'
 import { createTray } from './tray'
+import {
+  FEATURES,
+  installUpdate,
+  OS,
+  setUpApp,
+  uninstallApp,
+  UPDATE_FILE,
+  UPDATE_KIND,
+} from './platform'
 
 const SHUTDOWN_TIMEOUT_MS = 2000
 
@@ -128,9 +136,12 @@ if (refusedSwitches.length) {
 }
 
 async function start(): Promise<void> {
-  const tenant = await withDevOverrides(TenantSchema.parse(tenantConfig))
+  const loaded = await withDevOverrides(TenantSchema.parse(tenantConfig))
+  // Updating from GitHub installs Windows' installer: not on a Mac yet (docs/MAC.md), where Check
+  // for updates isn't offered.
+  const tenant = FEATURES.updates ? loaded : { ...loaded, updates: undefined }
   Menu.setApplicationMenu(null)
-  app.setAppUserModelId('com.morsemicro.desktopassist')
+  setUpApp()
 
   const userData = app.getPath('userData')
   const screenshotsDir = join(app.getPath('pictures'), tenant.appName)
@@ -198,26 +209,25 @@ async function start(): Promise<void> {
   // Her performances: watching the pointer (its gaze goes to her page), and more (see below).
   const herWindow = bubbleSurface(bubbleWindow)
   // Windows' own shell, looked at (never touched) through UI Automation: the taskbar's buttons and
-  // the windows on the screen, for her tricks. Windows only.
-  const shellProbe =
-    process.platform === 'win32'
-      ? new ShellProbe({
-          spawn: (encoded) =>
-            spawn(
-              'powershell.exe',
-              [
-                '-NoLogo',
-                '-NoProfile',
-                '-NonInteractive',
-                '-ExecutionPolicy',
-                'Bypass',
-                '-EncodedCommand',
-                encoded,
-              ],
-              { windowsHide: true },
-            ),
-        })
-      : null
+  // the windows on the screen, for her tricks. Windows only (FEATURES.shellProbe).
+  const shellProbe = FEATURES.shellProbe
+    ? new ShellProbe({
+        spawn: (encoded) =>
+          spawn(
+            'powershell.exe',
+            [
+              '-NoLogo',
+              '-NoProfile',
+              '-NonInteractive',
+              '-ExecutionPolicy',
+              'Bypass',
+              '-EncodedCommand',
+              encoded,
+            ],
+            { windowsHide: true },
+          ),
+      })
+    : null
   const toDip = (r: PhysicalRect): Rect => {
     const d = screen.screenToDipRect(null, r)
     return { x: d.x, y: d.y, width: d.width, height: d.height }
@@ -457,7 +467,10 @@ async function start(): Promise<void> {
           isInstalled: () => app.getApplicationNameForProtocol(NEW_CHAT_LINK) !== '',
           openLink: (url) => shell.openExternal(url),
           copyScreenshots,
-          autoSend: () => settings.get().autoSend,
+          // Pressing send for the user is Windows only (UI Automation); on a Mac the question is
+          // filled in, for the user to send.
+          autoSend: () => FEATURES.sendInClaude && settings.get().autoSend,
+          pasteKeys: FEATURES.pasteKeys,
           sendInClaude: async (question, paste) => {
             const outcome = await sendInClaude({ question, paste })
             // Not a failure as such (the user is told to finish in Claude), but worth knowing.
@@ -478,13 +491,18 @@ async function start(): Promise<void> {
         downloads: `${updates.downloads}/${updates.repo}/releases/download/`,
         publicKey: updates.publicKey,
         fetch: netFetch,
+        // This OS's file from the release: Windows' installer, or the Mac app's zip.
+        installer: UPDATE_FILE,
         save: (name, chunks) =>
-          saveDownload(join(app.getPath('temp'), `${tenant.appName} update`), name, chunks),
-        // The installer runs on its own: it waits for this app to quit, replaces it, and starts
-        // the new version. A development run has no installed copy to replace.
-        install: app.isPackaged
-          ? (path) => spawn(path, INSTALLER_ARGS, { detached: true, stdio: 'ignore' }).unref()
-          : null,
+          saveDownload(
+            join(app.getPath('temp'), `${tenant.appName} update`),
+            name,
+            chunks,
+            UPDATE_KIND,
+          ),
+        // It installs on its own: it waits for this app to quit, replaces it, and starts the new
+        // version (platform.ts). A development run has no installed copy to replace.
+        install: app.isPackaged ? installUpdate : null,
         notify,
         quit: () => app.quit(),
         onState: (state) => {
@@ -492,7 +510,7 @@ async function start(): Promise<void> {
           if (state.status === 'downloaded') {
             log(
               `Development run: downloaded ${state.version} to ${state.path}; an installed copy ` +
-                `would now run it with ${INSTALLER_ARGS.join(' ')}`,
+                `would now install it`,
             )
           }
         },
@@ -630,16 +648,12 @@ async function start(): Promise<void> {
     pointerOverBubble: () =>
       bubbleWindow.isVisible() && isInside(screen.getCursorScreenPoint(), bubbleWindow.getBounds()),
     uninstall: () =>
-      uninstall({
-        isPackaged: app.isPackaged,
-        exePath: app.getPath('exe'),
-        productName: PRODUCT_NAME,
-        exists: existsSync,
-        stopStartingWithWindows: () => app.setLoginItemSettings({ openAtLogin: false }),
-        runDetached: (path) => spawn(path, [], { detached: true, stdio: 'ignore' }).unref(),
-        quit: () => app.quit(),
-        onError: (error) => log('Starting the uninstaller failed:', error),
-      }),
+      uninstallApp(
+        PRODUCT_NAME,
+        existsSync,
+        () => app.quit(),
+        (error) => log('Uninstalling failed:', error),
+      ),
     getState: () => ({
       mode: bubble.currentMode,
       corner: bubble.corner,
@@ -704,17 +718,21 @@ async function start(): Promise<void> {
   fullScreen?.set(settings.get().hideInFullScreen)
   // Her window is showing now: she forms out of white motes (BubbleView).
   bubbleWindow.webContents.send(IPC.bubbleArrive)
-  // For its first ten minutes, make sure the bubble isn't stuck behind other apps' windows.
-  const stopWatchingFront = watchBubbleFront({
-    isResting: () => bubble.currentMode === 'collapsed',
-    check: () =>
-      runFrontCheck(
-        bubbleWindow.getNativeWindowHandle().readBigUInt64LE(0).toString(),
-        process.pid,
-      ),
-    bringToFront: (reshow) => bringToFront(bubbleWindow, reshow),
-    log,
-  })
+  // For its first ten minutes, make sure the bubble isn't stuck behind other apps' windows (a
+  // check made with Windows' own shell, so Windows only).
+  const stopWatchingFront =
+    OS !== 'windows'
+      ? () => {}
+      : watchBubbleFront({
+          isResting: () => bubble.currentMode === 'collapsed',
+          check: () =>
+            runFrontCheck(
+              bubbleWindow.getNativeWindowHandle().readBigUInt64LE(0).toString(),
+              process.pid,
+            ),
+          bringToFront: (reshow) => bringToFront(bubbleWindow, reshow),
+          log,
+        })
   app.once('before-quit', stopWatchingFront)
 }
 

@@ -1,3 +1,4 @@
+import type { OsName } from './platform'
 import type { ActionId } from './actions'
 import type { Pose } from './character'
 import type { CharacterSize, Corner } from './geometry'
@@ -31,6 +32,8 @@ export interface Notes {
 export type Effort = 'low' | 'medium' | 'high'
 
 export interface Settings {
+  /** The OS it's running on, which says what works and what things are called (shared/platform.ts). */
+  os: OsName
   autoStart: boolean
   /** Starting with Windows only works for an installed build, not `npm run dev`. */
   autoStartAvailable: boolean

@@ -52,8 +52,9 @@ function decode(paths: { className: string; d: string }[]): string[] {
   return grid.map((row) => row.join(''))
 }
 
-// Drawing every pose's frames takes a few seconds, more when the other test files run alongside.
-describe('the animations', { timeout: 30_000 }, () => {
+// Drawing every pose's frames takes a few seconds, and much longer when the other test files run
+// alongside (some 4,000 frames).
+describe('the animations', { timeout: 90_000 }, () => {
   it('have frames for every pose, each a full grid (and the headroom above it) of known colours', () => {
     expect(SPRITE_SIZE).toBe(96)
     for (const pose of POSES) {

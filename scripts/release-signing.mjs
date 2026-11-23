@@ -40,6 +40,23 @@ export function signInstaller(privateKey, version, installer) {
   return sign(null, Buffer.from(signedText(version, sha256)), privateKey).toString('base64')
 }
 
+/**
+ * The release key's private half, checked to be the one whose public half copies have (the
+ * tenant's `updates.publicKey`). Throws, saying what's wrong, if it isn't there or isn't that one.
+ */
+export function releaseKey(publicKeyBase64) {
+  if (!existsSync(KEY)) {
+    throw new Error(
+      `There's no release key at ${KEY} (or the file named in DESKTOP_ASSIST_RELEASE_KEY).`,
+    )
+  }
+  const privateKey = createPrivateKey(readFileSync(KEY))
+  if (publicKeyOf(privateKey) !== publicKeyBase64) {
+    throw new Error(`${KEY} isn't the key whose public half is updates.publicKey in tenant.json.`)
+  }
+  return privateKey
+}
+
 function makeKey() {
   if (existsSync(KEY)) {
     fail(`There's already a release key, ${KEY}. It's never replaced: copies only trust that one.`)
@@ -67,17 +84,13 @@ function signRelease() {
   const app = JSON.parse(readFileSync(join(ROOT, 'apps/desktop/package.json'), 'utf8'))
   const installer = join(ROOT, 'apps/desktop/dist', `${app.productName}-Setup-${app.version}.exe`)
   if (!existsSync(installer)) fail(`There's no ${installer} to sign; build it with npm run dist.`)
-  if (!existsSync(KEY)) {
+  let privateKey
+  try {
+    privateKey = releaseKey(tenant.updates.publicKey)
+  } catch (error) {
     fail(
-      `There's no release key at ${KEY}, so the installer isn't signed and copies won't take it ` +
-        'as an update. Put the key there (or name it in DESKTOP_ASSIST_RELEASE_KEY) and run ' +
-        '"node scripts/release-signing.mjs sign"; see docs/RELEASING.md.',
-    )
-  }
-  const privateKey = createPrivateKey(readFileSync(KEY))
-  if (publicKeyOf(privateKey) !== tenant.updates.publicKey) {
-    fail(
-      `${KEY} isn't the key whose public half is updates.publicKey in ${tenantName}'s tenant.json.`,
+      `${error.message} So the installer isn't signed, and copies won't take it as an update: ` +
+        'put the key in place and run "node scripts/release-signing.mjs sign"; see docs/RELEASING.md.',
     )
   }
   const file = readFileSync(installer)

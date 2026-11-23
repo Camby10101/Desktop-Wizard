@@ -50,6 +50,26 @@ module.exports = {
     target: [{ target: 'nsis', arch: ['x64'] }],
     artifactName: '${productName}-Setup-${version}.${ext}',
   },
+  mac: {
+    // The icon (see above): electron-builder makes the Mac's .icns from the 512 × 512 PNG.
+    ...(icon ? { icon } : {}),
+    category: 'public.app-category.productivity',
+    // One app for both Apple silicon and Intel Macs, as a disk image to install it from, and a zip
+    // (for updating, once a Mac can: docs/MAC.md). Built on a Mac: npm run dist:mac.
+    target: [
+      { target: 'dmg', arch: ['universal'] },
+      { target: 'zip', arch: ['universal'] },
+    ],
+    artifactName: '${productName}-${version}-mac.${ext}',
+    // No Dock icon or Cmd+Tab entry, even as it starts: she lives on the screen, as she does on
+    // Windows (see setUpApp in src/main/platform.ts).
+    extendInfo: { LSUIElement: true },
+    // Signed ad hoc: no Apple Developer ID, but Macs with Apple's own chips only run signed apps.
+    // (Ad hoc signing and the hardened runtime don't go together, and without a Developer ID it
+    // can't be notarized anyway.) Updates are checked against the release key instead.
+    identity: '-',
+    hardenedRuntime: false,
+  },
   nsis: {
     oneClick: true,
     perMachine: false,

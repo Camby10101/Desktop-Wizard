@@ -16,14 +16,19 @@ release
 2. **Build and sign**: `npm run dist`, which runs, in order: the type check, `electron-vite build`
    (the three parts compiled into `apps/desktop/out/`), `electron-builder --win` (the installer, in
    `apps/desktop/dist/`), `scripts/release-signing.mjs sign` (the `.sig` file), and
-   `scripts/publish-installer.mjs` (a copy of both in `installer/`).
-3. **Commit and push**, with the new `installer/`, so the newest installer can be downloaded from the
+   `scripts/publish-installer.mjs` (a copy of both in `installer/windows/`).
+3. **Commit and push**, with the new `installer/windows/`, so the newest installer can be downloaded from the
    repository's main page.
 4. **Publish the GitHub release**: `npm run release` (`scripts/publish-release.mjs`), from `main`,
    with a GitHub token in `GITHUB_TOKEN`. It checks the `.sig` is the release key's for this version
    and installer, creates the release tagged with the version (no `v`) on `main`, attaches the `.exe` and the
    `.exe.sig`, and checks they're there. From then on, every copy's Check for updates finds it
    (section 33).
+
+5. **The Mac build**: publishing the release starts `.github/workflows/mac.yml` on GitHub Actions,
+   which builds the Mac app on one of GitHub's Macs (`npm run dist:mac`) and attaches its `.dmg` and
+   `.zip` to the release. Run `npm run release` again once it's done: it signs the Mac zip with the
+   release key on the PC, so Mac copies take it as an update too (docs/MAC.md).
 
 ## 37. electron-vite: building the app
 
@@ -84,7 +89,7 @@ key. `npm run release:key` refuses to replace an existing key: copies trust only
 
 #### `scripts/publish-installer.mjs`
 
-Copies the new installer and its signature into `installer/`, removing older ones, and stops (copying
+Copies the new installer and its signature into `installer/windows/`, removing older ones, and stops (copying
 nothing) if the installer is 100 MB or more, which GitHub would refuse.
 
 > **Why it's built this way**

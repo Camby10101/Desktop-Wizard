@@ -1388,7 +1388,7 @@ Two ideas run through it:
 
 <!-- code: apps/desktop/src/shared/types.ts#Mode -->
 
-[`src/shared/types.ts`, lines 5–11](../../apps/desktop/src/shared/types.ts#L5-L11)
+[`src/shared/types.ts`, lines 6–12](../../apps/desktop/src/shared/types.ts#L6-L12)
 
 ```ts
 /**
@@ -1416,7 +1416,7 @@ How the figure moves is the separate `Pose` (`src/shared/character.ts`).
 
 <!-- code: apps/desktop/src/shared/types.ts#Attachment,Notes -->
 
-[`src/shared/types.ts`, lines 13–28](../../apps/desktop/src/shared/types.ts#L13-L28)
+[`src/shared/types.ts`, lines 14–29](../../apps/desktop/src/shared/types.ts#L14-L29)
 
 ```ts
 export interface Attachment {
@@ -1457,13 +1457,15 @@ survives a restart.
 
 <!-- code: apps/desktop/src/shared/types.ts#Effort,Settings,Habits,Theme -->
 
-[`src/shared/types.ts`, lines 30–68](../../apps/desktop/src/shared/types.ts#L30-L68)
+[`src/shared/types.ts`, lines 31–71](../../apps/desktop/src/shared/types.ts#L31-L71)
 
 ```ts
 /** How hard Claude thinks before answering (the API's `effort`), shown as Fast/Balanced/Thorough. */
 export type Effort = 'low' | 'medium' | 'high'
 
 export interface Settings {
+  /** The OS it's running on, which says what works and what things are called (shared/platform.ts). */
+  os: OsName
   autoStart: boolean
   /** Starting with Windows only works for an installed build, not `npm run dev`. */
   autoStartAvailable: boolean
@@ -1539,7 +1541,7 @@ Thorough. `Settings` is what the settings menu shows; `SettingsService.get()` in
 
 <!-- code: apps/desktop/src/shared/types.ts#ChatApp -->
 
-[`src/shared/types.ts`, lines 70–74](../../apps/desktop/src/shared/types.ts#L70-L74)
+[`src/shared/types.ts`, lines 73–77](../../apps/desktop/src/shared/types.ts#L73-L77)
 
 ```ts
 /**
@@ -1565,7 +1567,7 @@ Where questions are answered, set per tenant (`chatApp` in `tenant.json`, checke
 
 <!-- code: apps/desktop/src/shared/types.ts#Branding,RequestType,StartPage -->
 
-[`src/shared/types.ts`, lines 76–104](../../apps/desktop/src/shared/types.ts#L76-L104)
+[`src/shared/types.ts`, lines 79–107](../../apps/desktop/src/shared/types.ts#L79-L107)
 
 ```ts
 export interface Branding {
@@ -1624,7 +1626,7 @@ also be the Jira page or the service desk page (`View` in `PanelView.tsx`).
 
 <!-- code: apps/desktop/src/shared/types.ts#SignedInUser,AuthStatus -->
 
-[`src/shared/types.ts`, lines 106–125](../../apps/desktop/src/shared/types.ts#L106-L125)
+[`src/shared/types.ts`, lines 109–128](../../apps/desktop/src/shared/types.ts#L109-L128)
 
 ```ts
 export interface SignedInUser {
@@ -1673,7 +1675,7 @@ token ever reaches them. With Claude Desktop there is no `AuthManager` and no st
 
 <!-- code: apps/desktop/src/shared/types.ts#ChatMessage,SendResult -->
 
-[`src/shared/types.ts`, lines 127–143](../../apps/desktop/src/shared/types.ts#L127-L143)
+[`src/shared/types.ts`, lines 130–146](../../apps/desktop/src/shared/types.ts#L130-L146)
 
 ```ts
 /** One message as the chat shows it. */
@@ -1720,7 +1722,7 @@ draft, which the panel shows. The reply itself arrives later, through `onChatMes
 
 <!-- code: apps/desktop/src/shared/types.ts#AskResult -->
 
-[`src/shared/types.ts`, lines 145–151](../../apps/desktop/src/shared/types.ts#L145-L151)
+[`src/shared/types.ts`, lines 148–154](../../apps/desktop/src/shared/types.ts#L148-L154)
 
 ```ts
 /**
@@ -1755,7 +1757,7 @@ Claude Desktop has opened with the question filled in. The failures come from
 
 <!-- code: apps/desktop/src/shared/types.ts#AppState -->
 
-[`src/shared/types.ts`, lines 153–168](../../apps/desktop/src/shared/types.ts#L153-L168)
+[`src/shared/types.ts`, lines 156–171](../../apps/desktop/src/shared/types.ts#L156-L171)
 
 ```ts
 export interface AppState {
@@ -1805,7 +1807,7 @@ asks with `atlassian.get()` and `atlassian.feed()`, and keeps up through `onAtla
 
 <!-- code: apps/desktop/src/shared/types.ts#PortalApp,AppsState -->
 
-[`src/shared/types.ts`, lines 170–189](../../apps/desktop/src/shared/types.ts#L170-L189)
+[`src/shared/types.ts`, lines 173–192](../../apps/desktop/src/shared/types.ts#L173-L192)
 
 ```ts
 /** One app from the user's JumpCloud User Portal, as the Apps list shows it. */
@@ -1852,7 +1854,7 @@ sets the state and broadcasts every change on `assist:apps-state`.
 
 <!-- code: apps/desktop/src/shared/types.ts#UninstallResult -->
 
-[`src/shared/types.ts`, lines 191–193](../../apps/desktop/src/shared/types.ts#L191-L193)
+[`src/shared/types.ts`, lines 194–196](../../apps/desktop/src/shared/types.ts#L194-L196)
 
 ```ts
 /** Settings → Uninstall. On success the app is already quitting. */
@@ -1874,7 +1876,7 @@ quitting, so the page has nothing more to do.
 
 <!-- code: apps/desktop/src/shared/types.ts#AtlassianState -->
 
-[`src/shared/types.ts`, lines 195–205](../../apps/desktop/src/shared/types.ts#L195-L205)
+[`src/shared/types.ts`, lines 198–208](../../apps/desktop/src/shared/types.ts#L198-L208)
 
 ```ts
 /**
@@ -1907,7 +1909,7 @@ The connection to Atlassian, as the comment says, which `Atlassian` in
 
 <!-- code: apps/desktop/src/shared/types.ts#StatusCategory,IssueStatus,JiraNotification,ServiceRequest -->
 
-[`src/shared/types.ts`, lines 207–241](../../apps/desktop/src/shared/types.ts#L207-L241)
+[`src/shared/types.ts`, lines 210–244](../../apps/desktop/src/shared/types.ts#L210-L244)
 
 ```ts
 /** How far along an issue is, by its status's category in Jira (which sets its colour). */
@@ -1961,7 +1963,7 @@ export interface ServiceRequest {
 
 <!-- code: apps/desktop/src/shared/types.ts#FeedList,JiraFeed -->
 
-[`src/shared/types.ts`, lines 243–254](../../apps/desktop/src/shared/types.ts#L243-L254)
+[`src/shared/types.ts`, lines 246–257](../../apps/desktop/src/shared/types.ts#L246-L257)
 
 ```ts
 /** A list the main process keeps up to date in the background. */
@@ -1990,7 +1992,7 @@ export interface JiraFeed {
 
 <!-- code: apps/desktop/src/shared/types.ts#IssueSummary,ConfluencePage,SearchResult -->
 
-[`src/shared/types.ts`, lines 256–276](../../apps/desktop/src/shared/types.ts#L256-L276)
+[`src/shared/types.ts`, lines 259–279](../../apps/desktop/src/shared/types.ts#L259-L279)
 
 ```ts
 /** An issue in a list of search results. */
@@ -2026,7 +2028,7 @@ What the Search tab shows: Jira issues (`IssueSummary`, with the issue's address
 
 <!-- code: apps/desktop/src/shared/types.ts#IssueComment,IssueTransition,IssueDetail,IssueResult -->
 
-[`src/shared/types.ts`, lines 278–309](../../apps/desktop/src/shared/types.ts#L278-L309)
+[`src/shared/types.ts`, lines 281–312](../../apps/desktop/src/shared/types.ts#L281-L312)
 
 ```ts
 export interface IssueComment {
@@ -2081,7 +2083,7 @@ What the issue view shows.
 
 <!-- code: apps/desktop/src/shared/types.ts#IssuePrompt,AskAboutIssueResult -->
 
-[`src/shared/types.ts`, lines 311–315](../../apps/desktop/src/shared/types.ts#L311-L315)
+[`src/shared/types.ts`, lines 314–318](../../apps/desktop/src/shared/types.ts#L314-L318)
 
 ```ts
 /** What to ask Claude about an issue. */
@@ -2101,7 +2103,7 @@ export type AskAboutIssueResult = { ok: true; inChat: boolean } | { ok: false; m
 
 <!-- code: apps/desktop/src/shared/types.ts#NewRequest,RaiseResult -->
 
-[`src/shared/types.ts`, lines 317–331](../../apps/desktop/src/shared/types.ts#L317-L331)
+[`src/shared/types.ts`, lines 320–334](../../apps/desktop/src/shared/types.ts#L320-L334)
 
 ```ts
 /**
@@ -2137,7 +2139,7 @@ The service desk page's form, and the answer to sending it (see `ServiceDesk.rai
 
 <!-- code: apps/desktop/src/shared/types.ts#UpdateState -->
 
-[`src/shared/types.ts`, lines 333–345](../../apps/desktop/src/shared/types.ts#L333-L345)
+[`src/shared/types.ts`, lines 336–348](../../apps/desktop/src/shared/types.ts#L336-L348)
 
 ```ts
 /**
@@ -2175,7 +2177,7 @@ it.
 
 <!-- code: apps/desktop/src/shared/types.ts#ActionResult,AttachResult -->
 
-[`src/shared/types.ts`, lines 347–354](../../apps/desktop/src/shared/types.ts#L347-L354)
+[`src/shared/types.ts`, lines 350–357](../../apps/desktop/src/shared/types.ts#L350-L357)
 
 ```ts
 export type ActionResult = { ok: true; message?: string } | { ok: false; message: string }

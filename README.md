@@ -1,17 +1,29 @@
 # Desktop Wizard
 
-A Windows desktop assistant: a small character that stands on the taskbar near the bottom-right
-corner of the screen and opens a panel when clicked. Built for Morse Micro first. Branding lives in
+A desktop assistant for Windows and macOS: a small character that stands on the taskbar (or above
+the Dock) near the bottom-right corner of the screen and opens a panel when clicked. Built for Morse Micro first. Branding lives in
 [`tenants/`](tenants/README.md), so another business can use it later.
 
-**Download:** the newest installer is in [`installer/`](installer/)
-([Desktop Wizard-Setup-2.7.0.exe](installer/Desktop%20Wizard-Setup-2.7.0.exe), with its signature
-beside it). Run it to install Desktop Wizard for yourself (no admin needed); an installed copy
-updates itself from Settings → Check for updates.
+**Download**
+
+- **Windows**: the newest installer is in [`installer/windows/`](installer/windows/)
+  ([Desktop Wizard-Setup-2.7.0.exe](installer/windows/Desktop%20Wizard-Setup-2.7.0.exe), with its
+  signature beside it), and on the newest
+  [release](https://github.com/Camby10101/Desktop-Wizard/releases/latest). Run it to install Desktop
+  Wizard for yourself (no admin needed).
+- **macOS** (from the first release with Mac support on): `Desktop.Wizard-<version>-mac.dmg` on the
+  newest [release](https://github.com/Camby10101/Desktop-Wizard/releases/latest) (too big to keep in
+  the repository). Open it and drag Desktop Wizard into Applications. It isn't signed by Apple, so the
+  first time, macOS says it can't check it: open **System Settings → Privacy & Security** and click
+  **Open Anyway** (see [docs/MAC.md](docs/MAC.md)).
+
+Either way, an installed copy updates itself from Settings → Check for updates.
 
 - [docs/PLAN.md](docs/PLAN.md): the plan, architecture, milestones and decisions.
 - [docs/how-it-works.pdf](docs/how-it-works.pdf): new to the code? A guided tour of every part, with
   code examples, diagrams, walkthroughs of real moments, security, the tests and releasing.
+- [docs/MAC.md](docs/MAC.md): running on macOS: how Windows and Mac share one codebase, what works
+  on a Mac so far, and what's still to do.
 - [docs/CUSTOMIZING.md](docs/CUSTOMIZING.md): adding to the character (a habit, a toy, a
   performance, a colour), and where every part of her is.
 - [docs/code-guide/CODE_GUIDE.md](docs/code-guide/CODE_GUIDE.md): how the code fits together, with the code of every

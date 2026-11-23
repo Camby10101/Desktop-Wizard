@@ -1,8 +1,11 @@
 // Publishes the release on GitHub in one go (`npm run release`), once `npm run dist` has built and
 // signed the installer and the version is merged and pushed to main (see docs/RELEASING.md):
 // checks the installer's signature is the release key's for this version, creates the GitHub
-// release tagged with the version (2.7.0, no v) on main (or uses the one there), attaches the installer and its
-// signature (replacing a wrong one), and checks the release is there as copies look for it.
+// release tagged with the version (2.7.0, no v) on main (or uses the one there), attaches the
+// installer and its signature (replacing a wrong one), and checks the release is there as copies
+// look for it. Publishing it starts the Mac build on GitHub Actions (.github/workflows/mac.yml),
+// which attaches the Mac app a few minutes later; run this again then, and it signs the Mac zip
+// with the release key, here (the key never goes on GitHub).
 //
 //   npm run release                          publish (needs GITHUB_TOKEN; see below)
 //   npm run release -- --dry-run             check everything here and say what it would do
@@ -18,7 +21,7 @@ import { createHash, createPublicKey, verify } from 'node:crypto'
 import { existsSync, readFileSync, statSync } from 'node:fs'
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { signedText } from './release-signing.mjs'
+import { releaseKey, signedText, signInstaller } from './release-signing.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const API = 'https://api.github.com'
@@ -35,7 +38,12 @@ export function releasePlan(root = ROOT, tenantName = process.env.TENANT ?? 'mor
   if (!tenant.updates?.repo) {
     throw new Error(`${tenantName} doesn't update from GitHub (no updates.repo in tenant.json).`)
   }
-  const installer = join(root, 'installer', `${app.productName}-Setup-${app.version}.exe`)
+  const installer = join(
+    root,
+    'installer',
+    'windows',
+    `${app.productName}-Setup-${app.version}.exe`,
+  )
   const files = [installer, `${installer}.sig`]
   for (const file of files) {
     if (!existsSync(file)) {
@@ -44,6 +52,7 @@ export function releasePlan(root = ROOT, tenantName = process.env.TENANT ?? 'mor
   }
   return {
     version: app.version,
+    productName: app.productName,
     // The version itself, no `v` in front (copies take either, but releases are tagged without).
     tag: app.version,
     repo: tenant.updates.repo,
@@ -88,6 +97,7 @@ export async function publish({
   fetch = globalThis.fetch,
   readFile = readFileSync,
   log = console.log,
+  signMac,
 }) {
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -171,6 +181,54 @@ export async function publish({
       `The release isn't right yet${missing.length ? `: ${missing.map((f) => f.name).join(' and ')} missing` : ''}. Run npm run release again.`,
     )
   }
+
+  // The Mac app, which GitHub Actions builds and attaches a few minutes after the release is
+  // published. Its zip is what Mac copies update from, and only with the release key's signature:
+  // made here, where the key is (`signMac`), and checked against the zip that's there now.
+  const macZip = assetName(`${plan.productName}-${plan.version}-mac.zip`)
+  const mac = (done.assets ?? []).find((a) => a.name === macZip)
+  if (!mac) {
+    log(
+      `The Mac build isn't on the release yet: GitHub Actions attaches it a few minutes after it's ` +
+        `published (see the repository's Actions tab). Run npm run release again then, to sign it.`,
+    )
+  } else if (signMac) {
+    const download = async (asset) => {
+      const response = await fetch(`${releaseUrl}/assets/${asset.id}`, {
+        headers: { ...headers, Accept: 'application/octet-stream' },
+      })
+      if (!response.ok)
+        throw new Error(`GitHub said ${response.status} to downloading ${asset.name}`)
+      return Buffer.from(await response.arrayBuffer())
+    }
+    const zip = await download(mac)
+    const sigName = `${macZip}.sig`
+    const there = (done.assets ?? []).find((a) => a.name === sigName)
+    const holds =
+      there &&
+      signatureHolds(plan.version, zip, (await download(there)).toString('utf8'), plan.publicKey)
+    if (holds) {
+      log(`${macZip} is signed already.`)
+    } else {
+      if (there) {
+        log(`${sigName} isn't the signature of the Mac build there now: signing it again…`)
+        await call('DELETE', `${releaseUrl}/assets/${there.id}`)
+      } else {
+        log(`Signing the Mac build, ${macZip}, with the release key…`)
+      }
+      const signature = Buffer.from(`${signMac(zip)}\n`)
+      if (!signatureHolds(plan.version, zip, signature.toString('utf8'), plan.publicKey)) {
+        throw new Error("The Mac build's signature failed its check: it hasn't been attached.")
+      }
+      await call(
+        'POST',
+        `${UPLOADS}/repos/${plan.repo}/releases/${done.id}/assets?name=${encodeURIComponent(sigName)}`,
+        signature,
+        { 'Content-Type': 'application/octet-stream' },
+      )
+      log(`Attached ${sigName}: Mac copies can update to ${plan.version}.`)
+    }
+  }
   return done.html_url
 }
 
@@ -233,7 +291,13 @@ async function main(args) {
       ].join('\n'),
     )
   }
-  const url = await publish({ plan, token, notes })
+  const url = await publish({
+    plan,
+    token,
+    notes,
+    // Asked for only once there's a Mac build to sign: the release key, checked against tenant.json.
+    signMac: (zip) => signInstaller(releaseKey(plan.publicKey), plan.version, zip),
+  })
   console.log(`Published: ${url}`)
   console.log('Settings → Check for updates on older copies will find it.')
 }

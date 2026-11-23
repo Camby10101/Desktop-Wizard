@@ -1,7 +1,8 @@
-// Puts the installer just built (apps/desktop/dist) in installer/ at the top of the repository,
-// with its signature, so the newest one can be downloaded straight from the repository's main page
-// on GitHub. Anything older in installer/ is removed: only the latest version is kept. Run by
-// `npm run dist` after signing; commit installer/ with the release.
+// Puts the Windows installer just built (apps/desktop/dist) in installer/windows/ at the top of the
+// repository, with its signature, so the newest one can be downloaded straight from the
+// repository's main page on GitHub. Anything older there is removed: only the latest version is
+// kept. Run by `npm run dist` after signing; commit installer/ with the release. (The Mac app is
+// too big for a file in the repository: it's on each release instead, see docs/MAC.md.)
 //
 // GitHub refuses any file over 100 MB, so this stops (and copies nothing) if the installer is
 // that big.
@@ -23,7 +24,7 @@ const app = join(root, 'apps', 'desktop')
 const { version } = JSON.parse(readFileSync(join(app, 'package.json'), 'utf8'))
 const name = `Desktop Wizard-Setup-${version}.exe`
 const built = join(app, 'dist', name)
-const target = join(root, 'installer')
+const target = join(root, 'installer', 'windows')
 
 /** GitHub's limit for a file pushed to a repository. */
 const GITHUB_LIMIT = 100 * 1024 * 1024
@@ -38,7 +39,7 @@ const size = statSync(built).size
 if (size >= GITHUB_LIMIT) {
   console.error(
     `${name} is ${(size / 1024 / 1024).toFixed(1)} MB: GitHub won't take a file over 100 MB, ` +
-      'so it has not been copied to installer/.',
+      'so it has not been copied to installer/windows/.',
   )
   process.exit(1)
 }
@@ -50,5 +51,5 @@ for (const old of readdirSync(target)) {
 copyFileSync(built, join(target, name))
 copyFileSync(`${built}.sig`, join(target, `${name}.sig`))
 console.log(
-  `Copied ${name} (${(size / 1024 / 1024).toFixed(1)} MB) and its signature to installer/`,
+  `Copied ${name} (${(size / 1024 / 1024).toFixed(1)} MB) and its signature to installer/windows/`,
 )

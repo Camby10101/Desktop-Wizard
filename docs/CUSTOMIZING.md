@@ -21,6 +21,7 @@ TypeScript or the tests refuse a half-finished one, so the steps below are short
 | Spells                                              | `shared/spells.ts`, their effects in `renderer/src/lib/spells/`                                                |
 | The screen saver's scenes                           | `renderer/src/lib/screensaver/`                                                                                |
 | Her familiar, the cat                               | `renderer/src/character/cat.ts`, moved by `renderer/src/lib/familiar.ts`                                       |
+| What differs between Windows and macOS              | `shared/platform.ts` (what works on each, and its names) and `main/platform.ts`; see [MAC.md](MAC.md)          |
 
 A **habit's kind** says where its pieces are: `everyday` (`moves/everyday.ts`, `props/everyday.ts`),
 `charm` (`charms.ts`), `magic` (`magic.ts`), `toy` (`toys.ts`) or `visitor` (`visitors.ts`).

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { UI, type CharacterSize, type Corner, type PanelLayout } from '@shared/geometry'
+import { OS_FEATURES } from '@shared/platform'
 import type { Branding, Effort, Habits, Settings, SignedInUser, UpdateState } from '@shared/types'
 import { useFitInWindow } from '../hooks/useFitInWindow'
 import { anchored } from '../lib/anchor'
@@ -76,6 +77,8 @@ export function SettingsMenu(props: {
   }, [confirmingUninstall])
 
   const { settings, branding } = props
+  // What works on this OS, and what things are called there.
+  const features = OS_FEATURES[settings.os]
   // Beside the gear, but never past the top of the window: it's a long menu.
   const menu = useRef<HTMLDivElement>(null)
   const fit = useFitInWindow(menu, props.offset)
@@ -133,16 +136,18 @@ export function SettingsMenu(props: {
         on={settings.noHat}
         onToggle={() => props.onSetHabits({ noHat: !settings.noHat })}
       />
-      <ToggleRow
-        label="Hide in full-screen apps"
-        hint={
-          settings.hideInFullScreen
-            ? 'She steps aside for presentations, videos and games'
-            : 'She stays on top of everything'
-        }
-        on={settings.hideInFullScreen}
-        onToggle={props.onToggleHideInFullScreen}
-      />
+      {features.shellProbe && (
+        <ToggleRow
+          label="Hide in full-screen apps"
+          hint={
+            settings.hideInFullScreen
+              ? 'She steps aside for presentations, videos and games'
+              : 'She stays on top of everything'
+          }
+          on={settings.hideInFullScreen}
+          onToggle={props.onToggleHideInFullScreen}
+        />
+      )}
 
       <div className="my-1 border-t border-black/10 dark:border-white/10" />
 
@@ -160,7 +165,7 @@ export function SettingsMenu(props: {
         )}
       >
         <span>
-          Start with Windows
+          {features.startAtLogin}
           {!settings.autoStartAvailable && (
             <span className="block text-[11px] text-zinc-500">Only in the installed app</span>
           )}
@@ -168,7 +173,7 @@ export function SettingsMenu(props: {
         <Switch on={settings.autoStart} />
       </button>
 
-      {!builtInChat && (
+      {!builtInChat && features.sendInClaude && (
         <ToggleRow
           label="Send in Claude automatically"
           hint={settings.autoSend ? 'Questions are sent for you' : 'You press Enter in Claude'}

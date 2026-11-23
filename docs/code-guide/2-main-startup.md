@@ -40,7 +40,7 @@ tests can drive them with fakes. `index.ts` is the only file that knows about al
 
 <!-- code: apps/desktop/src/main/index.ts#SHUTDOWN_TIMEOUT_MS,controller,tray,refusedSwitches -->
 
-[`src/main/index.ts`, lines 91–114](../../apps/desktop/src/main/index.ts#L91-L114)
+[`src/main/index.ts`, lines 99–122](../../apps/desktop/src/main/index.ts#L99-L122)
 
 ```ts
 const SHUTDOWN_TIMEOUT_MS = 2000
@@ -124,10 +124,12 @@ backend, the conversation and the JumpCloud sign-in) are in a separate function,
 
 <!-- code: apps/desktop/src/main/index.ts#start.tenant -->
 
-[`src/main/index.ts`, line 131](../../apps/desktop/src/main/index.ts#L131)
+[`src/main/index.ts`, lines 140–142](../../apps/desktop/src/main/index.ts#L140-L142)
 
 ```ts
-const tenant = await withDevOverrides(TenantSchema.parse(tenantConfig))
+// Updating from GitHub installs Windows' installer: not on a Mac yet (docs/MAC.md), where Check
+// for updates isn't offered.
+const tenant = FEATURES.updates ? loaded : { ...loaded, updates: undefined }
 ```
 
 <!-- /code -->
@@ -153,7 +155,7 @@ const tenant = await withDevOverrides(TenantSchema.parse(tenantConfig))
 
 <!-- code: apps/desktop/src/main/index.ts#start.userData,screenshotsDir,actionCount,log,notes,settings -->
 
-[`src/main/index.ts`, lines 135–146](../../apps/desktop/src/main/index.ts#L135-L146)
+[`src/main/index.ts`, lines 146–157](../../apps/desktop/src/main/index.ts#L146-L157)
 
 ```ts
 const userData = app.getPath('userData')
@@ -193,7 +195,7 @@ const settings = new SettingsService(join(userData, 'preferences.json'), screens
 
 <!-- code: apps/desktop/src/main/index.ts#start.bubbleWindow,panelWindow,windows,stopKeepingOnTop,windowsReady,broadcast -->
 
-[`src/main/index.ts`, lines 152–165](../../apps/desktop/src/main/index.ts#L152-L165)
+[`src/main/index.ts`, lines 163–176](../../apps/desktop/src/main/index.ts#L163-L176)
 
 ```ts
 const bubbleWindow = createOverlayWindow('bubble', { width: box, height: box + headroom })
@@ -259,7 +261,7 @@ included. By the time a page's request is handled, its handler has been register
 
 <!-- code: apps/desktop/src/main/index.ts#start.openOverlay,vision,effects -->
 
-[`src/main/index.ts`, lines 167–196](../../apps/desktop/src/main/index.ts#L167-L196)
+[`src/main/index.ts`, lines 178–207](../../apps/desktop/src/main/index.ts#L178-L207)
 
 ```ts
 /**
@@ -348,7 +350,7 @@ below).
 
 <!-- code: apps/desktop/src/main/index.ts#start.bubble -->
 
-[`src/main/index.ts`, lines 309–343](../../apps/desktop/src/main/index.ts#L309-L343)
+[`src/main/index.ts`, lines 319–353](../../apps/desktop/src/main/index.ts#L319-L353)
 
 ```ts
 const bubble = new BubbleController({
@@ -444,7 +446,7 @@ here.
 
 <!-- code: apps/desktop/src/main/index.ts#start.clones,castSpell -->
 
-[`src/main/index.ts`, lines 359–415](../../apps/desktop/src/main/index.ts#L359-L415)
+[`src/main/index.ts`, lines 369–425](../../apps/desktop/src/main/index.ts#L369-L425)
 
 ```ts
 // Her clones: a window along the taskbar.
@@ -519,7 +521,7 @@ the Spells menu.
 
 <!-- code: apps/desktop/src/main/index.ts#start.screenSaver -->
 
-[`src/main/index.ts`, lines 367–395](../../apps/desktop/src/main/index.ts#L367-L395)
+[`src/main/index.ts`, lines 377–405](../../apps/desktop/src/main/index.ts#L377-L405)
 
 ```ts
 // The screen saver: a window over the whole of every display, in front of the taskbar too (from
@@ -599,7 +601,7 @@ check; their pages call in only to say the user is back, which `registerIpc()` a
 
 <!-- code: apps/desktop/src/main/index.ts#start.screenshots,notify,copyScreenshots -->
 
-[`src/main/index.ts`, lines 417–438](../../apps/desktop/src/main/index.ts#L417-L438)
+[`src/main/index.ts`, lines 427–448](../../apps/desktop/src/main/index.ts#L427-L448)
 
 ```ts
 const screenshots = new ScreenshotService(screenshotsDir, () =>
@@ -657,7 +659,7 @@ const copyScreenshots = async (paths: string[]) => {
 
 <!-- code: apps/desktop/src/main/index.ts#start.builtIn,claudeDesktop -->
 
-[`src/main/index.ts`, lines 441–470](../../apps/desktop/src/main/index.ts#L441-L470)
+[`src/main/index.ts`, lines 451–483](../../apps/desktop/src/main/index.ts#L451-L483)
 
 ```ts
 const builtIn =
@@ -680,7 +682,10 @@ const claudeDesktop =
         isInstalled: () => app.getApplicationNameForProtocol(NEW_CHAT_LINK) !== '',
         openLink: (url) => shell.openExternal(url),
         copyScreenshots,
-        autoSend: () => settings.get().autoSend,
+        // Pressing send for the user is Windows only (UI Automation); on a Mac the question is
+        // filled in, for the user to send.
+        autoSend: () => FEATURES.sendInClaude && settings.get().autoSend,
+        pasteKeys: FEATURES.pasteKeys,
         sendInClaude: async (question, paste) => {
           const outcome = await sendInClaude({ question, paste })
           // Not a failure as such (the user is told to finish in Claude), but worth knowing.
@@ -736,7 +741,7 @@ exists.
 
 <!-- code: apps/desktop/src/main/index.ts#start.netFetch,updater -->
 
-[`src/main/index.ts`, lines 471–501](../../apps/desktop/src/main/index.ts#L471-L501)
+[`src/main/index.ts`, lines 484–519](../../apps/desktop/src/main/index.ts#L484-L519)
 
 ```ts
 // Electron's fetch, so a proxy set in Windows is used.
@@ -749,13 +754,18 @@ const updater = updates
       downloads: `${updates.downloads}/${updates.repo}/releases/download/`,
       publicKey: updates.publicKey,
       fetch: netFetch,
+      // This OS's file from the release: Windows' installer, or the Mac app's zip.
+      installer: UPDATE_FILE,
       save: (name, chunks) =>
-        saveDownload(join(app.getPath('temp'), `${tenant.appName} update`), name, chunks),
-      // The installer runs on its own: it waits for this app to quit, replaces it, and starts
-      // the new version. A development run has no installed copy to replace.
-      install: app.isPackaged
-        ? (path) => spawn(path, INSTALLER_ARGS, { detached: true, stdio: 'ignore' }).unref()
-        : null,
+        saveDownload(
+          join(app.getPath('temp'), `${tenant.appName} update`),
+          name,
+          chunks,
+          UPDATE_KIND,
+        ),
+      // It installs on its own: it waits for this app to quit, replaces it, and starts the new
+      // version (platform.ts). A development run has no installed copy to replace.
+      install: app.isPackaged ? installUpdate : null,
       notify,
       quit: () => app.quit(),
       onState: (state) => {
@@ -763,7 +773,7 @@ const updater = updates
         if (state.status === 'downloaded') {
           log(
             `Development run: downloaded ${state.version} to ${state.path}; an installed copy ` +
-              `would now run it with ${INSTALLER_ARGS.join(' ')}`,
+              `would now install it`,
           )
         }
       },
@@ -816,7 +826,7 @@ const updater = updates
 
 <!-- code: apps/desktop/src/main/index.ts#start.appsStatus,portalApps -->
 
-[`src/main/index.ts`, lines 503–525](../../apps/desktop/src/main/index.ts#L503-L525)
+[`src/main/index.ts`, lines 521–543](../../apps/desktop/src/main/index.ts#L521-L543)
 
 ```ts
 let appsStatus: AppsState['status'] = 'loading'
@@ -881,7 +891,7 @@ icon (see [Your apps](10-apps.md)). It's only set up when the tenant has a `port
 
 <!-- code: apps/desktop/src/main/index.ts#start.requests,memoryPath,atlassianStatus,atlassian,desk -->
 
-[`src/main/index.ts`, lines 530–599](../../apps/desktop/src/main/index.ts#L530-L599)
+[`src/main/index.ts`, lines 548–617](../../apps/desktop/src/main/index.ts#L548-L617)
 
 ```ts
 const requests = serviceDesk?.requests
@@ -1010,7 +1020,7 @@ Two statements follow:
 
 <!-- code: apps/desktop/src/main/index.ts#start.onDisplayChange -->
 
-[`src/main/index.ts`, lines 668–672](../../apps/desktop/src/main/index.ts#L668-L672)
+[`src/main/index.ts`, lines 682–686](../../apps/desktop/src/main/index.ts#L682-L686)
 
 ```ts
 const onDisplayChange = () => {
@@ -1081,7 +1091,7 @@ Everything else in this part of `start()` is plain statements:
 
 <!-- code: apps/desktop/src/main/index.ts#start.shuttingDown -->
 
-[`src/main/index.ts`, lines 677–678](../../apps/desktop/src/main/index.ts#L677-L678)
+[`src/main/index.ts`, lines 691–692](../../apps/desktop/src/main/index.ts#L691-L692)
 
 ```ts
 // Save the text box before quitting. before-quit fires again after the second app.quit().
@@ -1126,20 +1136,24 @@ there, and none of it is lost before the window shows.
 
 <!-- code: apps/desktop/src/main/index.ts#start.stopWatchingFront -->
 
-[`src/main/index.ts`, lines 707–717](../../apps/desktop/src/main/index.ts#L707-L717)
+[`src/main/index.ts`, lines 721–735](../../apps/desktop/src/main/index.ts#L721-L735)
 
 ```ts
-// For its first ten minutes, make sure the bubble isn't stuck behind other apps' windows.
-const stopWatchingFront = watchBubbleFront({
-  isResting: () => bubble.currentMode === 'collapsed',
-  check: () =>
-    runFrontCheck(
-      bubbleWindow.getNativeWindowHandle().readBigUInt64LE(0).toString(),
-      process.pid,
-    ),
-  bringToFront: (reshow) => bringToFront(bubbleWindow, reshow),
-  log,
-})
+// For its first ten minutes, make sure the bubble isn't stuck behind other apps' windows (a
+// check made with Windows' own shell, so Windows only).
+const stopWatchingFront =
+  OS !== 'windows'
+    ? () => {}
+    : watchBubbleFront({
+        isResting: () => bubble.currentMode === 'collapsed',
+        check: () =>
+          runFrontCheck(
+            bubbleWindow.getNativeWindowHandle().readBigUInt64LE(0).toString(),
+            process.pid,
+          ),
+        bringToFront: (reshow) => bringToFront(bubbleWindow, reshow),
+        log,
+      })
 ```
 
 <!-- /code -->
@@ -1178,7 +1192,7 @@ was part of `start()`. It returns a [`BuiltInChat`](#builtinchat): the `AuthMana
 
 <!-- code: apps/desktop/src/main/index.ts#startBuiltInChat.devBaseUrl,lastIdToken,backend,chat -->
 
-[`src/main/index.ts`, lines 737–761](../../apps/desktop/src/main/index.ts#L737-L761)
+[`src/main/index.ts`, lines 755–779](../../apps/desktop/src/main/index.ts#L755-L779)
 
 ```ts
 // Dev runs may point at a local test server; an installed app always talks to Anthropic.
@@ -1251,7 +1265,7 @@ const chat = new ChatSession({
 
 <!-- code: apps/desktop/src/main/index.ts#startBuiltInChat.missing,localIssuer,authState,auth -->
 
-[`src/main/index.ts`, lines 763–787](../../apps/desktop/src/main/index.ts#L763-L787)
+[`src/main/index.ts`, lines 781–805](../../apps/desktop/src/main/index.ts#L781-L805)
 
 ```ts
 const missing = missingSettings(signIn, claudeAccess)
@@ -1328,7 +1342,7 @@ Two statements end the function:
 
 <!-- code: apps/desktop/src/main/index.ts#safeStorageEncryptor -->
 
-[`src/main/index.ts`, lines 793–798](../../apps/desktop/src/main/index.ts#L793-L798)
+[`src/main/index.ts`, lines 811–816](../../apps/desktop/src/main/index.ts#L811-L816)
 
 ```ts
 /** Windows DPAPI through Electron: only this Windows user can decrypt what it encrypts. */
@@ -1356,7 +1370,7 @@ The encryption `SecretStore` uses for the saved sign-in. `SecretStore` only know
 
 <!-- code: apps/desktop/src/main/index.ts#withDevOverrides -->
 
-[`src/main/index.ts`, lines 800–823](../../apps/desktop/src/main/index.ts#L800-L823)
+[`src/main/index.ts`, lines 818–841](../../apps/desktop/src/main/index.ts#L818-L841)
 
 ```ts
 /**
@@ -1412,7 +1426,7 @@ example to try the built-in chat against a test identity provider, without editi
 
 <!-- code: apps/desktop/src/main/index.ts#isLoopback -->
 
-[`src/main/index.ts`, lines 825–827](../../apps/desktop/src/main/index.ts#L825-L827)
+[`src/main/index.ts`, lines 843–845](../../apps/desktop/src/main/index.ts#L843-L845)
 
 ```ts
 function isLoopback(url: URL): boolean {
@@ -1430,7 +1444,7 @@ in `hostname`. Used only to decide whether plain `http` is allowed for a dev ide
 
 <!-- code: apps/desktop/src/main/index.ts#toArea,electronDisplays -->
 
-[`src/main/index.ts`, lines 829–844](../../apps/desktop/src/main/index.ts#L829-L844)
+[`src/main/index.ts`, lines 847–862](../../apps/desktop/src/main/index.ts#L847-L862)
 
 ```ts
 /** Electron's `screen`, in the shape the bubble controller uses. All coordinates are DIPs. */
@@ -1477,7 +1491,7 @@ method is called, which happens after `start()` has begun.
 
 <!-- code: apps/desktop/src/main/index.ts#fail -->
 
-[`src/main/index.ts`, lines 846–850](../../apps/desktop/src/main/index.ts#L846-L850)
+[`src/main/index.ts`, lines 864–868](../../apps/desktop/src/main/index.ts#L864-L868)
 
 ```ts
 function fail(error: unknown): void {
@@ -1909,7 +1923,7 @@ export interface IpcContext {
   /** The screen saver, which its own windows' pages wake (they aren't among `windows`). */
   screenSaver: { wakeFrom(senderId: number): void }
   /** Settings → Uninstall. */
-  uninstall(): UninstallResult
+  uninstall(): UninstallResult | Promise<UninstallResult>
   /** Stepping out of the way of full-screen apps, or null where it can't (not Windows). */
   fullScreen: { set(on: boolean): void } | null
   /** Whether the mouse pointer is over her window (showing) now. */
@@ -2791,7 +2805,7 @@ electron-builder's own updater passes to its NSIS installer, so the installer al
 
 <!-- code: apps/desktop/src/main/updates.ts#parseVersion,isNewer -->
 
-[`src/main/updates.ts`, lines 16–31](../../apps/desktop/src/main/updates.ts#L16-L31)
+[`src/main/updates.ts`, lines 22–37](../../apps/desktop/src/main/updates.ts#L22-L37)
 
 ```ts
 /** A version as numbers: "v1.2.3" is [1, 2, 3]. Null if it isn't one. */
@@ -2829,7 +2843,7 @@ export function isNewer(candidate: string, current: string): boolean {
 
 <!-- code: apps/desktop/src/main/updates.ts#Release,Item,isObject,ownDownloads,releaseOf -->
 
-[`src/main/updates.ts`, lines 33–99](../../apps/desktop/src/main/updates.ts#L33-L99)
+[`src/main/updates.ts`, lines 39–110](../../apps/desktop/src/main/updates.ts#L39-L110)
 
 ```ts
 /** A release with an installer attached. */
@@ -2865,14 +2879,19 @@ export function ownDownloads(htmlUrl: unknown, downloads: string): string | null
 }
 
 /**
- * The release in GitHub's answer for a repository's latest release, if it's a version with an
- * installer: an `.exe` with "Setup" in its name, downloaded from the repository's own releases:
+ * The release in GitHub's answer for a repository's latest release, if it's a version with this
+ * OS's file (`installer`: Windows' `Setup….exe` unless given), downloaded from the repository's own
+ * releases:
  * `downloads` (https://github.com/<owner>/<name>/releases/download/), or, if the repository has
  * since been renamed or moved (GitHub answers for it under the old name), wherever the release's
  * own page says it now is (ownDownloads). Its signature is the file of the same name plus `.sig`.
  * The installer only runs if that signature is the release key's, wherever it came from.
  */
-export function releaseOf(payload: unknown, downloads: string): Release | null {
+export function releaseOf(
+  payload: unknown,
+  downloads: string,
+  installer: RegExp = WINDOWS_UPDATE,
+): Release | null {
   if (!isObject(payload) || payload['draft'] === true || payload['prerelease'] === true) return null
   const version = parseVersion(typeof payload['tag_name'] === 'string' ? payload['tag_name'] : '')
   if (!version) return null
@@ -2883,7 +2902,7 @@ export function releaseOf(payload: unknown, downloads: string): Release | null {
     (a['browser_download_url'].startsWith(downloads) ||
       (moved !== null && a['browser_download_url'].startsWith(moved)))
   const asset = assets.find(
-    (a) => typeof a['name'] === 'string' && /setup.*\.exe$/i.test(a['name']) && fromRepo(a),
+    (a) => typeof a['name'] === 'string' && installer.test(a['name']) && fromRepo(a),
   )
   if (!asset) return null
   const digest = typeof asset['digest'] === 'string' ? asset['digest'] : ''
@@ -2955,7 +2974,7 @@ In `releaseOf()`:
 
 <!-- code: apps/desktop/src/main/updates.ts#signedText,isSigned -->
 
-[`src/main/updates.ts`, lines 129–160](../../apps/desktop/src/main/updates.ts#L129-L160)
+[`src/main/updates.ts`, lines 141–172](../../apps/desktop/src/main/updates.ts#L141-L172)
 
 ```ts
 /**
@@ -3015,7 +3034,7 @@ How a signature is checked.
 
 <!-- code: apps/desktop/src/main/updates.ts#Fetch,UpdaterDeps -->
 
-[`src/main/updates.ts`, lines 162–196](../../apps/desktop/src/main/updates.ts#L162-L196)
+[`src/main/updates.ts`, lines 174–210](../../apps/desktop/src/main/updates.ts#L174-L210)
 
 ```ts
 export type Fetch = (url: string, init?: RequestInit) => Promise<Response>
@@ -3030,6 +3049,8 @@ export interface UpdaterDeps {
   releasesUrl: string
   /** Where the repository's release files are downloaded from; nothing else is downloaded. */
   downloads: string
+  /** Which of a release's files is this OS's: Windows' installer unless given (MAC_UPDATE). */
+  installer?: RegExp
   /**
    * The release key's public half (tenant.json `updates.publicKey`). An installer only runs if
    * its release has a signature made with the key's private half, which is kept off GitHub: someone
@@ -3077,7 +3098,7 @@ proxy set in Windows is used. `UpdaterDeps` is everything `Updater` needs from o
 
 <!-- code: apps/desktop/src/main/updates.ts#Updater.class -->
 
-[`src/main/updates.ts`, lines 198–204](../../apps/desktop/src/main/updates.ts#L198-L204)
+[`src/main/updates.ts`, lines 212–218](../../apps/desktop/src/main/updates.ts#L212-L218)
 
 ```ts
 /**
@@ -3097,7 +3118,7 @@ The class `index.ts` and `ipc.ts` use, with the comment that sums it up.
 
 <!-- code: apps/desktop/src/main/updates.ts#Updater.state,constructor,current -->
 
-[`src/main/updates.ts`, lines 205–211](../../apps/desktop/src/main/updates.ts#L205-L211)
+[`src/main/updates.ts`, lines 219–225](../../apps/desktop/src/main/updates.ts#L219-L225)
 
 ```ts
 private state: UpdateState = { status: 'idle' }
@@ -3119,7 +3140,7 @@ get current(): UpdateState {
 
 <!-- code: apps/desktop/src/main/updates.ts#Updater.checkAndInstall -->
 
-[`src/main/updates.ts`, lines 213–258](../../apps/desktop/src/main/updates.ts#L213-L258)
+[`src/main/updates.ts`, lines 227–272](../../apps/desktop/src/main/updates.ts#L227-L272)
 
 ```ts
 /** The whole job, one click: check, and if there's an update, download and install it. */
@@ -3201,7 +3222,7 @@ The whole job, from one click, as the comment says.
 
 <!-- code: apps/desktop/src/main/updates.ts#Updater.latest -->
 
-[`src/main/updates.ts`, lines 260–270](../../apps/desktop/src/main/updates.ts#L260-L270)
+[`src/main/updates.ts`, lines 274–284](../../apps/desktop/src/main/updates.ts#L274-L284)
 
 ```ts
 private async latest(): Promise<ReturnType<typeof newestRelease>> {
@@ -3213,7 +3234,7 @@ private async latest(): Promise<ReturnType<typeof newestRelease>> {
   if (response.status === 404) return { release: null, unfinished: null }
   if (response.status === 403 || response.status === 429) throw new Busy()
   if (!response.ok) throw new Error(`GitHub answered ${response.status}`)
-  return newestRelease(await response.json(), this.deps.downloads)
+  return newestRelease(await response.json(), this.deps.downloads, this.deps.installer)
 }
 ```
 
@@ -3238,7 +3259,7 @@ Asks GitHub's API for the repository's releases, and picks out the newest (`newe
 
 <!-- code: apps/desktop/src/main/updates.ts#newestRelease -->
 
-[`src/main/updates.ts`, lines 101–127](../../apps/desktop/src/main/updates.ts#L101-L127)
+[`src/main/updates.ts`, lines 112–139](../../apps/desktop/src/main/updates.ts#L112-L139)
 
 ```ts
 /**
@@ -3251,6 +3272,7 @@ Asks GitHub's API for the repository's releases, and picks out the newest (`newe
 export function newestRelease(
   payload: unknown,
   downloads: string,
+  installer: RegExp = WINDOWS_UPDATE,
 ): { release: Release | null; unfinished: string | null } {
   let release: Release | null = null
   let unfinished: string | null = null
@@ -3258,7 +3280,7 @@ export function newestRelease(
     if (!isObject(item) || item['draft'] === true || item['prerelease'] === true) continue
     const version = parseVersion(typeof item['tag_name'] === 'string' ? item['tag_name'] : '')
     if (!version) continue
-    const found = releaseOf(item, downloads)
+    const found = releaseOf(item, downloads, installer)
     if (found) {
       if (!release || isNewer(found.version, release.version)) release = found
     } else if (!unfinished || isNewer(version.join('.'), unfinished)) {
@@ -3287,7 +3309,7 @@ The release to update to, from GitHub's list of the repository's releases.
 
 <!-- code: apps/desktop/src/main/updates.ts#Updater.download -->
 
-[`src/main/updates.ts`, lines 272–317](../../apps/desktop/src/main/updates.ts#L272-L317)
+[`src/main/updates.ts`, lines 286–331](../../apps/desktop/src/main/updates.ts#L286-L331)
 
 ```ts
 /**
@@ -3375,7 +3397,7 @@ the release's and signed with the release key, or it's never run.
 
 <!-- code: apps/desktop/src/main/updates.ts#Updater.signature -->
 
-[`src/main/updates.ts`, lines 319–329](../../apps/desktop/src/main/updates.ts#L319-L329)
+[`src/main/updates.ts`, lines 333–343](../../apps/desktop/src/main/updates.ts#L333-L343)
 
 ```ts
 /** The release's signature of its installer (64 bytes, base64 in `<installer>.sig`). */
@@ -3406,7 +3428,7 @@ Downloads the release's signature, as the comment says.
 
 <!-- code: apps/desktop/src/main/updates.ts#Updater.fail,setState -->
 
-[`src/main/updates.ts`, lines 331–352](../../apps/desktop/src/main/updates.ts#L331-L352)
+[`src/main/updates.ts`, lines 345–366](../../apps/desktop/src/main/updates.ts#L345-L366)
 
 ```ts
 private fail(doing: string, error: unknown): UpdateState {
@@ -3448,21 +3470,23 @@ private setState(state: UpdateState): UpdateState {
 
 <!-- code: apps/desktop/src/main/updates.ts#saveDownload -->
 
-[`src/main/updates.ts`, lines 355–377](../../apps/desktop/src/main/updates.ts#L355-L377)
+[`src/main/updates.ts`, lines 369–393](../../apps/desktop/src/main/updates.ts#L369-L393)
 
 ```ts
 /**
- * Saves a downloaded installer in `dir` (emptied first, so old downloads don't pile up) and
- * returns its path. Only an `.exe`, and only the file's own name is used. If the download fails
- * part way (or turns out not to be the release's file), the partial file is deleted.
+ * Saves a downloaded update in `dir` (emptied first, so old downloads don't pile up) and returns
+ * its path. Only this OS's kind of file (`kind`: an `.exe` unless given), and only the file's own
+ * name is used. If the download fails part way (or turns out not to be the release's file), the
+ * partial file is deleted.
  */
 export async function saveDownload(
   dir: string,
   name: string,
   chunks: AsyncIterable<Uint8Array>,
+  kind: RegExp = /\.exe$/i,
 ): Promise<string> {
   const file = basename(name)
-  if (!/\.exe$/i.test(file)) throw new Error(`${file} isn't an installer`)
+  if (!kind.test(file)) throw new Error(`${file} isn't an installer`)
   await rm(dir, { recursive: true, force: true })
   await mkdir(dir, { recursive: true })
   const path = join(dir, file)
@@ -3497,7 +3521,7 @@ Saves the downloaded installer, as the comment says. `index.ts` gives it the fol
 
 <!-- code: apps/desktop/src/main/updates.ts#Busy,Mismatch,Unsigned -->
 
-[`src/main/updates.ts`, lines 379–386](../../apps/desktop/src/main/updates.ts#L379-L386)
+[`src/main/updates.ts`, lines 395–402](../../apps/desktop/src/main/updates.ts#L395-L402)
 
 ```ts
 /** GitHub turned the request away (its limit for apps that don't sign in). */
@@ -3563,7 +3587,7 @@ export function signInstaller(privateKey, version, installer) {
 
 <!-- code: scripts/release-signing.mjs#makeKey -->
 
-[`scripts/release-signing.mjs`, lines 43–58](../../scripts/release-signing.mjs#L43-L58)
+[`scripts/release-signing.mjs`, lines 60–75](../../scripts/release-signing.mjs#L60-L75)
 
 ```js
 function makeKey() {
@@ -3594,7 +3618,7 @@ PKCS #8 form (`flag: 'wx'` fails rather than overwrite a file). It prints the pu
 
 <!-- code: scripts/release-signing.mjs#signRelease -->
 
-[`scripts/release-signing.mjs`, lines 60–97](../../scripts/release-signing.mjs#L60-L97)
+[`scripts/release-signing.mjs`, lines 77–110](../../scripts/release-signing.mjs#L77-L110)
 
 ```js
 function signRelease() {
@@ -3607,17 +3631,13 @@ function signRelease() {
   const app = JSON.parse(readFileSync(join(ROOT, 'apps/desktop/package.json'), 'utf8'))
   const installer = join(ROOT, 'apps/desktop/dist', `${app.productName}-Setup-${app.version}.exe`)
   if (!existsSync(installer)) fail(`There's no ${installer} to sign; build it with npm run dist.`)
-  if (!existsSync(KEY)) {
+  let privateKey
+  try {
+    privateKey = releaseKey(tenant.updates.publicKey)
+  } catch (error) {
     fail(
-      `There's no release key at ${KEY}, so the installer isn't signed and copies won't take it ` +
-        'as an update. Put the key there (or name it in DESKTOP_ASSIST_RELEASE_KEY) and run ' +
-        '"node scripts/release-signing.mjs sign"; see docs/RELEASING.md.',
-    )
-  }
-  const privateKey = createPrivateKey(readFileSync(KEY))
-  if (publicKeyOf(privateKey) !== tenant.updates.publicKey) {
-    fail(
-      `${KEY} isn't the key whose public half is updates.publicKey in ${tenantName}'s tenant.json.`,
+      `${error.message} So the installer isn't signed, and copies won't take it as an update: ` +
+        'put the key in place and run "node scripts/release-signing.mjs sign"; see docs/RELEASING.md.',
     )
   }
   const file = readFileSync(installer)
@@ -3653,7 +3673,7 @@ The last step of `npm run dist`.
 
 <!-- code: scripts/release-signing.mjs#fail -->
 
-[`scripts/release-signing.mjs`, lines 99–102](../../scripts/release-signing.mjs#L99-L102)
+[`scripts/release-signing.mjs`, lines 112–115](../../scripts/release-signing.mjs#L112-L115)
 
 ```js
 function fail(message) {
@@ -4281,7 +4301,7 @@ IPC channels, and its size buttons through `characterSetSize`.
 
 <!-- code: apps/desktop/src/main/settings.ts#DEFAULT_EFFORT,PreferencesSchema,Preferences -->
 
-[`src/main/settings.ts`, lines 9–44](../../apps/desktop/src/main/settings.ts#L9-L44)
+[`src/main/settings.ts`, lines 10–45](../../apps/desktop/src/main/settings.ts#L10-L45)
 
 ```ts
 /** Fast answers by default; Balanced and Thorough think longer. */
@@ -4351,7 +4371,7 @@ type Preferences = z.infer<typeof PreferencesSchema>
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.prefs,saving,constructor -->
 
-[`src/main/settings.ts`, lines 47–53](../../apps/desktop/src/main/settings.ts#L47-L53)
+[`src/main/settings.ts`, lines 48–54](../../apps/desktop/src/main/settings.ts#L48-L54)
 
 ```ts
 private prefs: Preferences = {}
@@ -4381,7 +4401,7 @@ constructor(
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.init -->
 
-[`src/main/settings.ts`, lines 55–74](../../apps/desktop/src/main/settings.ts#L55-L74)
+[`src/main/settings.ts`, lines 56–75](../../apps/desktop/src/main/settings.ts#L56-L75)
 
 ```ts
 /**
@@ -4396,7 +4416,7 @@ async init(): Promise<void> {
   if (app.isPackaged && !this.prefs.autoStartInitialized) {
     this.setAutoStart(true)
     await this.save({ autoStartInitialized: true })
-  } else if (app.isPackaged) {
+  } else if (app.isPackaged && OS === 'windows') {
     // Updated from Desktop Assist, Windows may still start the old .exe at sign-in.
     adoptFormerLoginItem(app.getPath('exe'), {
       startsAtLogin: (path) => app.getLoginItemSettings(path ? { path } : undefined).openAtLogin,
@@ -4435,12 +4455,13 @@ Loads the file once at startup (called from `start()`).
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.get -->
 
-[`src/main/settings.ts`, lines 76–95](../../apps/desktop/src/main/settings.ts#L76-L95)
+[`src/main/settings.ts`, lines 77–97](../../apps/desktop/src/main/settings.ts#L77-L97)
 
 ```ts
 get(): Settings {
   const available = app.isPackaged
   return {
+    os: OS,
     // Read from Windows each time: the user can also switch it off in Windows' Settings > Apps >
     // Startup, which leaves the entry there but skips it (see startsAtSignIn).
     autoStart: available && startsAtSignIn(app.getLoginItemSettings()),
@@ -4482,7 +4503,7 @@ The current settings, as the Settings menu shows them (`Settings` in `src/shared
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setAutoStart -->
 
-[`src/main/settings.ts`, lines 97–104](../../apps/desktop/src/main/settings.ts#L97-L104)
+[`src/main/settings.ts`, lines 99–106](../../apps/desktop/src/main/settings.ts#L99-L106)
 
 ```ts
 /**
@@ -4506,7 +4527,7 @@ settings, so the menu shows what actually happened; in a dev run that's still "o
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setEffort,setAutoSend -->
 
-[`src/main/settings.ts`, lines 106–114](../../apps/desktop/src/main/settings.ts#L106-L114)
+[`src/main/settings.ts`, lines 108–116](../../apps/desktop/src/main/settings.ts#L108-L116)
 
 ```ts
 async setEffort(effort: Effort): Promise<Settings> {
@@ -4531,7 +4552,7 @@ dependency each time it hands a question over.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setTheme -->
 
-[`src/main/settings.ts`, lines 116–124](../../apps/desktop/src/main/settings.ts#L116-L124)
+[`src/main/settings.ts`, lines 118–126](../../apps/desktop/src/main/settings.ts#L118-L126)
 
 ```ts
 /**
@@ -4561,7 +4582,7 @@ Switches every Desktop Wizard window between light and dark, and saves the choic
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setHabits -->
 
-[`src/main/settings.ts`, lines 126–130](../../apps/desktop/src/main/settings.ts#L126-L130)
+[`src/main/settings.ts`, lines 128–132](../../apps/desktop/src/main/settings.ts#L128-L132)
 
 ```ts
 /** Whether she wanders about, does her idle animations, and wears her hat (any of them). */
@@ -4589,7 +4610,7 @@ own.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setFavoriteApp -->
 
-[`src/main/settings.ts`, lines 144–149](../../apps/desktop/src/main/settings.ts#L144-L149)
+[`src/main/settings.ts`, lines 146–151](../../apps/desktop/src/main/settings.ts#L146-L151)
 
 ```ts
 /** Stars an app in the Apps list, or takes its star away. */
@@ -4614,7 +4635,7 @@ list, which the panel adopts.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.bubbleAnchor,setBubbleAnchor -->
 
-[`src/main/settings.ts`, lines 151–157](../../apps/desktop/src/main/settings.ts#L151-L157)
+[`src/main/settings.ts`, lines 153–159](../../apps/desktop/src/main/settings.ts#L153-L159)
 
 ```ts
 get bubbleAnchor(): BubbleAnchor | null {
@@ -4638,7 +4659,7 @@ settles near the other bottom corner or on another display.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.characterScale,setCharacterScale -->
 
-[`src/main/settings.ts`, lines 159–166](../../apps/desktop/src/main/settings.ts#L159-L166)
+[`src/main/settings.ts`, lines 161–168](../../apps/desktop/src/main/settings.ts#L161-L168)
 
 ```ts
 /** Her size as chosen in Settings, or null if it's never been changed. */
@@ -4664,7 +4685,7 @@ has room for less.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.save -->
 
-[`src/main/settings.ts`, lines 168–175](../../apps/desktop/src/main/settings.ts#L168-L175)
+[`src/main/settings.ts`, lines 170–177](../../apps/desktop/src/main/settings.ts#L170-L177)
 
 ```ts
 private async save(changes: Preferences): Promise<void> {

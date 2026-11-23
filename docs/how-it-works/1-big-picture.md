@@ -124,7 +124,8 @@ Desktop-Assist/
 ├── tenants/morse-micro/           tenant.json, logo.png, icon.png
 ├── scripts/                       Code Guide, PDFs, release signing, publishing the installer
 ├── docs/                          this guide, the Code Guide, set-up and releasing guides
-└── installer/                     the newest installer and its signature
+├── installer/windows/             the newest Windows installer and its signature
+└── .github/workflows/mac.yml      builds the Mac app for each release, on GitHub's Macs
 ```
 
 ## 4. How the pieces fit together

@@ -4,6 +4,7 @@ import type { Size } from '@shared/geometry'
 import { IPC } from '@shared/ipc'
 import { isPassive, type View } from '@shared/views'
 import type { PanelSurface, Surface } from './BubbleController'
+import { afterOverlayCreated, overlayOptions } from '../platform'
 import { checkOnTop, type OnTopWindow } from './frontCheck'
 
 export type { View } from '@shared/views'
@@ -55,8 +56,9 @@ export function createOverlayWindow(
     fullscreenable: false,
     skipTaskbar: true,
     // Always on top, but at ON_TOP_LEVEL (set below); `alwaysOnTop: true` here would use
-    // Electron's default level, which loses it while a full-screen app is in front.
-    type: 'toolbar',
+    // Electron's default level, which loses it while a full-screen app is in front. A tool window
+    // on its OS (platform.ts): on Windows a toolbar window, kept off the taskbar and Alt+Tab.
+    ...overlayOptions(),
     // Both can take the focus. A bubble that couldn't had its mouse presses dropped by Windows /
     // Chromium after clicking elsewhere (only the release arrived, so clicks did nothing).
     // Clicking the bubble now takes the focus from an open panel; BubbleController.clickBubble
@@ -73,6 +75,7 @@ export function createOverlayWindow(
     },
   })
   win.setAlwaysOnTop(true, ON_TOP_LEVEL)
+  afterOverlayCreated(win)
   lockDown(win, view)
   if (view === 'panel') {
     win.setIgnoreMouseEvents(true, { forward: true })
