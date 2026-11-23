@@ -1376,7 +1376,7 @@ const EFFORTS: { value: Effort; label: string; hint: string }[] = [
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#SettingsMenu -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 29–278](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L29-L278)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 29–289](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L29-L289)
 
 ```tsx
 /** The menu that opens beside the gear icon, on the side facing the middle of the screen. */
@@ -1406,6 +1406,7 @@ export function SettingsMenu(props: {
   onToggleAutoStart: () => void
   onSetEffort: (effort: Effort) => void
   onToggleAutoSend: () => void
+  onToggleHideInFullScreen: () => void
   onSignOut: () => void
   onOpenScreenshotsFolder: () => void
   onNewConversation: () => void
@@ -1484,6 +1485,16 @@ export function SettingsMenu(props: {
         hint={settings.noHat ? 'Her hat’s off' : 'She wears her hat'}
         on={settings.noHat}
         onToggle={() => props.onSetHabits({ noHat: !settings.noHat })}
+      />
+      <ToggleRow
+        label="Hide in full-screen apps"
+        hint={
+          settings.hideInFullScreen
+            ? 'She steps aside for presentations, videos and games'
+            : 'She stays on top of everything'
+        }
+        on={settings.hideInFullScreen}
+        onToggle={props.onToggleHideInFullScreen}
       />
 
       <div className="my-1 border-t border-black/10 dark:border-white/10" />
@@ -1753,7 +1764,7 @@ switches the "New conversation" (or "Clear text box") row into its "Click again"
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#UpdateItem -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 280–318](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L280-L318)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 291–329](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L291-L329)
 
 ```tsx
 /** Check for updates, showing how it's going: checking, downloading, installing, or the answer. */
@@ -1822,7 +1833,7 @@ whole job happens in the main process (`Updater` in `src/main/updates.ts`; see
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#MenuItem -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 320–349](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L320-L349)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 331–360](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L331-L360)
 
 ```tsx
 function MenuItem(props: {
@@ -1877,7 +1888,7 @@ One row of the menu: an icon and a label, as a button.
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#ToggleRow -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 351–368](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L351-L368)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 362–379](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L362-L379)
 
 ```tsx
 /** A setting that's on or off: its name, a line saying what it does now, and its switch. */
@@ -1920,7 +1931,7 @@ switches there would have been four copies of the same lines, which would only d
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#Switch -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 370–387](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L370-L387)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 381–398](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L381-L398)
 
 ```tsx
 function Switch({ on }: { on: boolean }) {

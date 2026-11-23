@@ -56,6 +56,7 @@ export const IPC = {
   settingsSetAutoStart: 'assist:settings-set-auto-start',
   settingsSetEffort: 'assist:settings-set-effort',
   settingsSetAutoSend: 'assist:settings-set-auto-send',
+  settingsSetHideInFullScreen: 'assist:settings-set-hide-in-full-screen',
   settingsSetFavoriteApp: 'assist:settings-set-favorite-app',
   settingsSetTheme: 'assist:settings-set-theme',
   settingsSetHabits: 'assist:settings-set-habits',
@@ -167,6 +168,7 @@ export interface AssistApi {
     setAutoStart(enabled: boolean): Promise<Settings>
     setEffort(effort: Effort): Promise<Settings>
     setAutoSend(autoSend: boolean): Promise<Settings>
+    setHideInFullScreen(hide: boolean): Promise<Settings>
     /** Stars an app in the Apps list (it moves to the top), or takes its star away. */
     setFavoriteApp(id: string, favorite: boolean): Promise<Settings>
     /** Light or dark mode for all of Desktop Wizard; saved. */

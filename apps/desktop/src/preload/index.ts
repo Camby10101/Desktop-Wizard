@@ -39,6 +39,7 @@ const api: AssistApi = {
     setAutoStart: (enabled) => ipcRenderer.invoke(IPC.settingsSetAutoStart, enabled),
     setEffort: (effort) => ipcRenderer.invoke(IPC.settingsSetEffort, effort),
     setAutoSend: (autoSend) => ipcRenderer.invoke(IPC.settingsSetAutoSend, autoSend),
+    setHideInFullScreen: (hide) => ipcRenderer.invoke(IPC.settingsSetHideInFullScreen, hide),
     setTheme: (theme) => ipcRenderer.invoke(IPC.settingsSetTheme, theme),
     setHabits: (habits) => ipcRenderer.invoke(IPC.settingsSetHabits, habits),
     setRobeColor: (color) => ipcRenderer.invoke(IPC.settingsSetRobeColor, color),

@@ -21,6 +21,8 @@ const PreferencesSchema = z.object({
   noIdles: z.boolean().optional(),
   /** Her hat off (Settings → No hat); she wears it unless this is on. */
   noHat: z.boolean().optional(),
+  /** She steps out of the way of full-screen apps (Settings); on unless turned off. */
+  hideInFullScreen: z.boolean().optional(),
   /** Her robe's colour, chosen in Settings; the company's colour unless one is. */
   robeColor: z
     .string()
@@ -86,6 +88,7 @@ export class SettingsService {
       standStill: this.prefs.standStill ?? false,
       noIdles: this.prefs.noIdles ?? false,
       noHat: this.prefs.noHat ?? false,
+      hideInFullScreen: this.prefs.hideInFullScreen ?? true,
       robeColor: this.prefs.robeColor ?? null,
       canUninstall: available,
     }
@@ -123,6 +126,12 @@ export class SettingsService {
   /** Whether she wanders about, does her idle animations, and wears her hat (any of them). */
   async setHabits(habits: Partial<Habits>): Promise<Settings> {
     await this.save(habits)
+    return this.get()
+  }
+
+  /** Whether she steps out of the way of full-screen apps. */
+  async setHideInFullScreen(hideInFullScreen: boolean): Promise<Settings> {
+    await this.save({ hideInFullScreen })
     return this.get()
   }
 

@@ -415,6 +415,48 @@ describe('the screen saver', () => {
   })
 })
 
+describe('full-screen apps', () => {
+  it('steps out of the way at once, does nothing meanwhile, and forms out of motes once it’s gone', () => {
+    controller.fullScreen(true)
+    expect(bubble.visible).toBe(false) // at once: no vanishing over a slideshow
+    const before = poses.length
+    vi.advanceTimersByTime(120_000)
+    expect(poses.slice(before)).toEqual([])
+    controller.fullScreen(false)
+    expect(bubble.visible).toBe(true)
+    expect(bubble.bounds).toEqual(home())
+    expect(controller.currentPose).toBe('appear')
+  })
+
+  it('leaves her be while the panel is open (asked again later, she steps aside then)', () => {
+    controller.clickBubble()
+    controller.fullScreen(true)
+    expect(bubble.visible).toBe(true)
+    expect(controller.currentMode).toBe('expanded')
+    controller.clickBubble()
+    controller.fullScreen(true)
+    expect(bubble.visible).toBe(false)
+  })
+
+  it('stays gone until both the screen saver and the full-screen app are over', () => {
+    controller.fullScreen(true)
+    controller.sleep()
+    controller.fullScreen(false)
+    expect(bubble.visible).toBe(false) // the screen saver still has her
+    controller.wake()
+    expect(bubble.visible).toBe(true)
+    // The other way round.
+    controller.sleep()
+    vi.advanceTimersByTime(SPELL_POSE_MS.vanish + 10)
+    controller.fullScreen(true)
+    controller.wake()
+    expect(bubble.visible).toBe(false) // the app's still in front
+    controller.fullScreen(false)
+    expect(bubble.visible).toBe(true)
+    expect(controller.currentPose).toBe('appear')
+  })
+})
+
 describe('casting spells', () => {
   it('plays a spell’s pose for its time, then stands idle and gets on with her day', () => {
     controller.act('chant')

@@ -2776,7 +2776,7 @@ returns. The sections after it take its values and functions one at a time.
 
 <!-- code: apps/desktop/src/renderer/src/views/PanelView.tsx#Panel -->
 
-[`src/renderer/src/views/PanelView.tsx`, lines 66–596](../../apps/desktop/src/renderer/src/views/PanelView.tsx#L66-L596)
+[`src/renderer/src/views/PanelView.tsx`, lines 66–601](../../apps/desktop/src/renderer/src/views/PanelView.tsx#L66-L601)
 
 ```tsx
 function Panel({ state }: { state: AppState }) {
@@ -3289,6 +3289,11 @@ function Panel({ state }: { state: AppState }) {
           }
           onSetEffort={(effort) => void setEffort(effort)}
           onToggleAutoSend={() => void toggleAutoSend()}
+          onToggleHideInFullScreen={async () =>
+            setSettings(
+              await window.assist.settings.setHideInFullScreen(!settings.hideInFullScreen),
+            )
+          }
           onSignOut={() => void signOut()}
           onOpenScreenshotsFolder={() => void window.assist.screenshots.openFolder()}
           onNewConversation={() => void newConversation()}

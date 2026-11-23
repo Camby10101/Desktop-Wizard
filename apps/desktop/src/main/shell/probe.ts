@@ -4,7 +4,8 @@ import { z } from 'zod'
 
 // Looking at Windows' own shell from the outside, through UI Automation (the accessibility
 // interface screen readers use), in a PowerShell kept running while it's needed: where the
-// taskbar's buttons are, and the windows on the screen and where they are (their frames as drawn,
+// taskbar's buttons are, which window is in front (and whether it fills its screen), and the
+// windows on the screen and where they are (their frames as drawn,
 // without Windows' invisible borders), which is in front of which, and which are cloaked (there
 // but not shown: on another virtual desktop, or a suspended app). It only reads; it never clicks,
 // moves or changes anything. Coordinates come back in physical pixels (the script is per-monitor
@@ -29,6 +30,29 @@ public static class Probe {
     return order;
   }
   public static bool Cloaked(long h) { int v; return DwmGetWindowAttribute(new IntPtr(h), 14, out v, 4) == 0 && v != 0; }
+  [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
+  [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
+  [DllImport("user32.dll", CharSet = CharSet.Unicode)] static extern int GetClassName(IntPtr h, System.Text.StringBuilder s, int n);
+  [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr h, out RECT r);
+  [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")] static extern IntPtr GetWindowLongPtr(IntPtr h, int i);
+  [DllImport("user32.dll")] static extern IntPtr MonitorFromWindow(IntPtr h, uint flags);
+  [StructLayout(LayoutKind.Sequential)] public struct MONITORINFO { public int cbSize; public RECT rcMonitor; public RECT rcWork; public uint dwFlags; }
+  [DllImport("user32.dll")] static extern bool GetMonitorInfo(IntPtr m, ref MONITORINFO mi);
+  [DllImport("shell32.dll")] static extern int SHQueryUserNotificationState(out int state);
+  public static int NotificationState() { int s; return SHQueryUserNotificationState(out s) == 0 ? s : 0; }
+  public static object[] Front() {
+    IntPtr h = GetForegroundWindow();
+    if (h == IntPtr.Zero) return null;
+    uint pid; GetWindowThreadProcessId(h, out pid);
+    var name = new System.Text.StringBuilder(256); GetClassName(h, name, 256);
+    long style = GetWindowLongPtr(h, -16).ToInt64();
+    RECT r; GetWindowRect(h, out r);
+    var mi = new MONITORINFO(); mi.cbSize = Marshal.SizeOf(typeof(MONITORINFO));
+    GetMonitorInfo(MonitorFromWindow(h, 2), ref mi);
+    RECT m = mi.rcMonitor;
+    return new object[] { h.ToInt64(), (long)pid, name.ToString(), (style & 0x00C00000L) == 0x00C00000L,
+      new int[] { r.L, r.T, r.R - r.L, r.B - r.T }, new int[] { m.L, m.T, m.R - m.L, m.B - m.T } };
+  }
   public static int[] Frame(long h) {
     RECT r;
     if (DwmGetWindowAttribute(new IntPtr(h), 9, out r, 16) != 0 || r.R <= r.L || r.B <= r.T) return null;
@@ -37,10 +61,25 @@ public static class Probe {
 }
 '@
 [void][Probe]::SetThreadDpiAwarenessContext([IntPtr]::new(-4))
-Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
-$A = [Windows.Automation.AutomationElement]
-$Children = [Windows.Automation.TreeScope]::Children
-$Descendants = [Windows.Automation.TreeScope]::Descendants
+# UI Automation is loaded only when first needed (the taskbar and the windows), not for the window in
+# front, which is asked often.
+$script:A = $null
+function Uia {
+  if ($script:A) { return }
+  Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
+  $script:A = [Windows.Automation.AutomationElement]
+  $script:Children = [Windows.Automation.TreeScope]::Children
+  $script:Descendants = [Windows.Automation.TreeScope]::Descendants
+}
+function Box4($a) { @{ x = $a[0]; y = $a[1]; width = $a[2]; height = $a[3] } }
+# The window in front: whose, what kind, whether it has a title bar, its box and its monitor's; and
+# whether Windows says a full-screen game or presentation has the screen.
+function Front {
+  $state = [Probe]::NotificationState()
+  $f = [Probe]::Front()
+  if ($f -eq $null) { return @{ state = $state; window = $null } }
+  @{ state = $state; window = @{ handle = $f[0]; pid = $f[1]; className = $f[2]; captioned = $f[3]; rect = (Box4 $f[4]); monitor = (Box4 $f[5]) } }
+}
 function Box($e) {
   $r = $e.Current.BoundingRectangle
   if ($r.IsEmpty -or [double]::IsInfinity($r.Width)) { return $null }
@@ -59,6 +98,7 @@ function State($w) {
   'normal'
 }
 function Taskbar {
+  Uia
   foreach ($class in 'Shell_TrayWnd', 'Shell_SecondaryTrayWnd') {
     $bars = $A::RootElement.FindAll($Children, (New-Object Windows.Automation.PropertyCondition ($A::ClassNameProperty, $class)))
     foreach ($bar in $bars) {
@@ -72,6 +112,7 @@ function Taskbar {
   }
 }
 function Windows {
+  Uia
   $order = [Probe]::Order()
   $wins = $A::RootElement.FindAll($Children, (New-Object Windows.Automation.PropertyCondition ($A::ControlTypeProperty, [Windows.Automation.ControlType]::Window)))
   foreach ($w in $wins) {
@@ -85,6 +126,7 @@ function Windows {
   }
 }
 function OneWindow([long]$h) {
+  Uia
   try { $w = $A::FromHandle([IntPtr]::new($h)); @{ handle = $h; state = (State $w); rect = (Frame $h $w) } }
   catch { @{ handle = $h; state = 'gone'; rect = $null } }
 }
@@ -97,6 +139,7 @@ while ($true) {
       'taskbar' { $result = @(Taskbar) }
       'windows' { $result = @(Windows) }
       'window' { $result = OneWindow ([long]$parts[2]) }
+      'foreground' { $result = Front }
       default { $result = $null }
     }
     $json = ConvertTo-Json -InputObject @{ id = $parts[0]; ok = $true; result = $result } -Compress -Depth 6
@@ -130,6 +173,25 @@ export type ShellWindow = z.infer<typeof ShellWindow>
 
 const WindowNow = z.object({ handle: z.number(), state: z.string(), rect: Box.nullable() })
 export type WindowNow = z.infer<typeof WindowNow>
+
+const Foreground = z.object({
+  /** Windows' SHQueryUserNotificationState: 3 a full-screen Direct3D game, 4 presentation mode. */
+  state: z.number(),
+  /** The window in front (physical pixels), or null with none. */
+  window: z
+    .object({
+      handle: z.number(),
+      pid: z.number(),
+      className: z.string(),
+      /** It has a title bar (full-screen apps don't). */
+      captioned: z.boolean(),
+      rect: Box,
+      /** The monitor it's on: the whole screen, taskbar and all. */
+      monitor: Box,
+    })
+    .nullable(),
+})
+export type Foreground = z.infer<typeof Foreground>
 
 const Answer = z.object({
   id: z.string(),
@@ -190,6 +252,11 @@ export class ShellProbe {
   async window(handle: number): Promise<WindowNow> {
     if (!Number.isSafeInteger(handle)) throw new Error('Not a window handle')
     return WindowNow.parse(await this.ask(`window ${handle}`))
+  }
+
+  /** The window in front, and whether Windows says a full-screen game or presentation is on. */
+  async foreground(): Promise<Foreground> {
+    return Foreground.parse(await this.ask('foreground'))
   }
 
   /** Stops the PowerShell now (the app is quitting). */

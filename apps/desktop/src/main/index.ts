@@ -70,6 +70,7 @@ import { Familiar } from './familiar'
 import { TaskbarTricks } from './performances/taskbarTricks'
 import { WindowTricks } from './performances/windowTricks'
 import { ShellProbe, type PhysicalRect } from './shell/probe'
+import { FullScreenWatch } from './fullScreen'
 import { Battle } from './performances/battle'
 import { familiarVisit } from './performances/familiarVisit'
 import { ScreenSaver } from './screenSaver'
@@ -341,6 +342,18 @@ async function start(): Promise<void> {
     },
   })
   controller = bubble
+
+  // Out of the way of full-screen apps: a presentation, a video or a game in front on her screen
+  // (Settings → Hide in full-screen apps; Windows only).
+  const fullScreen = shellProbe
+    ? new FullScreenWatch({
+        foreground: () => shellProbe.foreground(),
+        her: () => bubbleWindow.getBounds(),
+        ownPid: process.pid,
+        toDip,
+        onCheck: (on) => bubble.fullScreen(on),
+      })
+    : null
   panelWindow.on('blur', () => bubble.panelBlurred())
 
   // Her clones: a window along the taskbar.
@@ -594,6 +607,7 @@ async function start(): Promise<void> {
   registerIpc({
     windows,
     controller: bubble,
+    fullScreen,
     notes,
     screenshots,
     settings,
@@ -671,6 +685,7 @@ async function start(): Promise<void> {
     vision.stop()
     effects.stop()
     familiar.stop()
+    fullScreen?.dispose()
     shellProbe?.dispose()
     screenSaver.dispose()
     for (const stop of stopKeepingOnTop) stop()
@@ -686,6 +701,7 @@ async function start(): Promise<void> {
 
   await windowsReady
   bubble.start()
+  fullScreen?.set(settings.get().hideInFullScreen)
   // Her window is showing now: she forms out of white motes (BubbleView).
   bubbleWindow.webContents.send(IPC.bubbleArrive)
   // For its first ten minutes, make sure the bubble isn't stuck behind other apps' windows.

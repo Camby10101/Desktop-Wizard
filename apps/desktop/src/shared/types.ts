@@ -48,6 +48,11 @@ export interface Settings {
   standStill: boolean
   /** She doesn't do her idle animations, her habits, on her own (off until turned on). */
   noIdles: boolean
+  /**
+   * She steps out of the way while a full-screen app (a presentation, a video, a game) is in front
+   * on her screen (on until turned off).
+   */
+  hideInFullScreen: boolean
   /** Her hat's off, in everything she does (off until turned on: she wears it). */
   noHat: boolean
   /** Her robe's colour (`#rrggbb`; her hat is a darker shade of it), or null for the company's. */
