@@ -4274,7 +4274,7 @@ IPC channels, and its size buttons through `characterSetSize`.
 
 <!-- code: apps/desktop/src/main/settings.ts#DEFAULT_EFFORT,PreferencesSchema,Preferences -->
 
-[`src/main/settings.ts`, lines 8–41](../../apps/desktop/src/main/settings.ts#L8-L41)
+[`src/main/settings.ts`, lines 9–42](../../apps/desktop/src/main/settings.ts#L9-L42)
 
 ```ts
 /** Fast answers by default; Balanced and Thorough think longer. */
@@ -4342,7 +4342,7 @@ type Preferences = z.infer<typeof PreferencesSchema>
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.prefs,saving,constructor -->
 
-[`src/main/settings.ts`, lines 44–50](../../apps/desktop/src/main/settings.ts#L44-L50)
+[`src/main/settings.ts`, lines 45–51](../../apps/desktop/src/main/settings.ts#L45-L51)
 
 ```ts
 private prefs: Preferences = {}
@@ -4372,7 +4372,7 @@ constructor(
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.init -->
 
-[`src/main/settings.ts`, lines 52–71](../../apps/desktop/src/main/settings.ts#L52-L71)
+[`src/main/settings.ts`, lines 53–72](../../apps/desktop/src/main/settings.ts#L53-L72)
 
 ```ts
 /**
@@ -4426,14 +4426,15 @@ Loads the file once at startup (called from `start()`).
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.get -->
 
-[`src/main/settings.ts`, lines 73–90](../../apps/desktop/src/main/settings.ts#L73-L90)
+[`src/main/settings.ts`, lines 74–92](../../apps/desktop/src/main/settings.ts#L74-L92)
 
 ```ts
 get(): Settings {
   const available = app.isPackaged
   return {
-    // Read from Windows each time: the user can also change it in Settings > Apps > Startup.
-    autoStart: available && app.getLoginItemSettings().openAtLogin,
+    // Read from Windows each time: the user can also switch it off in Windows' Settings > Apps >
+    // Startup, which leaves the entry there but skips it (see startsAtSignIn).
+    autoStart: available && startsAtSignIn(app.getLoginItemSettings()),
     autoStartAvailable: available,
     screenshotsDir: this.screenshotsDir,
     effort: this.prefs.effort ?? DEFAULT_EFFORT,
@@ -4471,11 +4472,15 @@ The current settings, as the Settings menu shows them (`Settings` in `src/shared
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setAutoStart -->
 
-[`src/main/settings.ts`, lines 92–95](../../apps/desktop/src/main/settings.ts#L92-L95)
+[`src/main/settings.ts`, lines 94–101](../../apps/desktop/src/main/settings.ts#L94-L101)
 
 ```ts
+/**
+ * Starts the app at sign-in or not. Turning it on also switches it back on in Windows' own Startup
+ * apps (`enabled`), in case it was switched off there.
+ */
 setAutoStart(enabled: boolean): Settings {
-  if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: enabled })
+  if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: enabled, enabled })
   return this.get()
 }
 ```
@@ -4491,7 +4496,7 @@ settings, so the menu shows what actually happened; in a dev run that's still "o
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setEffort,setAutoSend -->
 
-[`src/main/settings.ts`, lines 97–105](../../apps/desktop/src/main/settings.ts#L97-L105)
+[`src/main/settings.ts`, lines 103–111](../../apps/desktop/src/main/settings.ts#L103-L111)
 
 ```ts
 async setEffort(effort: Effort): Promise<Settings> {
@@ -4516,7 +4521,7 @@ dependency each time it hands a question over.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setTheme -->
 
-[`src/main/settings.ts`, lines 107–115](../../apps/desktop/src/main/settings.ts#L107-L115)
+[`src/main/settings.ts`, lines 113–121](../../apps/desktop/src/main/settings.ts#L113-L121)
 
 ```ts
 /**
@@ -4546,7 +4551,7 @@ Switches every Desktop Wizard window between light and dark, and saves the choic
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setHabits -->
 
-[`src/main/settings.ts`, lines 117–121](../../apps/desktop/src/main/settings.ts#L117-L121)
+[`src/main/settings.ts`, lines 123–127](../../apps/desktop/src/main/settings.ts#L123-L127)
 
 ```ts
 /** Whether she wanders about, does her idle animations, and wears her hat (any of them). */
@@ -4574,7 +4579,7 @@ own.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.setFavoriteApp -->
 
-[`src/main/settings.ts`, lines 129–134](../../apps/desktop/src/main/settings.ts#L129-L134)
+[`src/main/settings.ts`, lines 135–140](../../apps/desktop/src/main/settings.ts#L135-L140)
 
 ```ts
 /** Stars an app in the Apps list, or takes its star away. */
@@ -4599,7 +4604,7 @@ list, which the panel adopts.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.bubbleAnchor,setBubbleAnchor -->
 
-[`src/main/settings.ts`, lines 136–142](../../apps/desktop/src/main/settings.ts#L136-L142)
+[`src/main/settings.ts`, lines 142–148](../../apps/desktop/src/main/settings.ts#L142-L148)
 
 ```ts
 get bubbleAnchor(): BubbleAnchor | null {
@@ -4623,7 +4628,7 @@ settles near the other bottom corner or on another display.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.characterScale,setCharacterScale -->
 
-[`src/main/settings.ts`, lines 144–151](../../apps/desktop/src/main/settings.ts#L144-L151)
+[`src/main/settings.ts`, lines 150–157](../../apps/desktop/src/main/settings.ts#L150-L157)
 
 ```ts
 /** Her size as chosen in Settings, or null if it's never been changed. */
@@ -4649,7 +4654,7 @@ has room for less.
 
 <!-- code: apps/desktop/src/main/settings.ts#SettingsService.save -->
 
-[`src/main/settings.ts`, lines 153–160](../../apps/desktop/src/main/settings.ts#L153-L160)
+[`src/main/settings.ts`, lines 159–166](../../apps/desktop/src/main/settings.ts#L159-L166)
 
 ```ts
 private async save(changes: Preferences): Promise<void> {

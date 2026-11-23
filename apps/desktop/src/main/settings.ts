@@ -2,6 +2,7 @@ import { app, nativeTheme } from 'electron'
 import { z } from 'zod'
 import type { Effort, Habits, Settings, Theme } from '@shared/types'
 import type { BubbleAnchor } from './bubble/BubbleController'
+import { startsAtSignIn } from './autoStart'
 import { adoptFormerLoginItem } from './formerName'
 import { readJsonFile, writeJsonFile } from './storage/jsonFile'
 
@@ -73,8 +74,9 @@ export class SettingsService {
   get(): Settings {
     const available = app.isPackaged
     return {
-      // Read from Windows each time: the user can also change it in Settings > Apps > Startup.
-      autoStart: available && app.getLoginItemSettings().openAtLogin,
+      // Read from Windows each time: the user can also switch it off in Windows' Settings > Apps >
+      // Startup, which leaves the entry there but skips it (see startsAtSignIn).
+      autoStart: available && startsAtSignIn(app.getLoginItemSettings()),
       autoStartAvailable: available,
       screenshotsDir: this.screenshotsDir,
       effort: this.prefs.effort ?? DEFAULT_EFFORT,
@@ -89,8 +91,12 @@ export class SettingsService {
     }
   }
 
+  /**
+   * Starts the app at sign-in or not. Turning it on also switches it back on in Windows' own Startup
+   * apps (`enabled`), in case it was switched off there.
+   */
   setAutoStart(enabled: boolean): Settings {
-    if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: enabled })
+    if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: enabled, enabled })
     return this.get()
   }
 
