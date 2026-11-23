@@ -1,9 +1,23 @@
 // What's drawn round her charms: a butterfly, juggled orbs, bubbles, a will-o'-wisp, a little spell.
 
 import type { Scene } from './kit'
-import { SPARKLE, TWINKLE } from './kit'
+import { SPARKLE, TWINKLE, stage } from './kit'
 import { add, type Point } from '../raster'
 import { DIAGONAL_MOUTH } from '../pictures'
+
+/**
+ * The fireflies (Pose.fireflies): how many; coming to her, circling her, one resting in her cupped
+ * hands, and drifting away (shares of the habit); the ring they circle on (pixels across and up and
+ * down from the middle of her).
+ */
+export const FIREFLIES = {
+  count: 7,
+  gather: [0.04, 0.26],
+  rest: [0.44, 0.62],
+  leave: [0.76, 0.98],
+  rx: 26,
+  ry: 9,
+} as const
 
 /** A little magic butterfly, wings open and shut: teal wings, a white spot on each, a gold body. */
 export const BUTTERFLY_OPEN = ['GG.GG', 'GwkwG', '.G.G.']
@@ -187,5 +201,57 @@ export function paintSpell({ pose, canvas, hand }: Scene): void {
       hand.x - 1 + Math.cos(spin + 4.2) * 5,
       hand.y - 1 - 3 + Math.sin(spin + 4.2) * 3,
     )
+  }
+}
+
+/**
+ * Fireflies: they come to her from all round, circling her (behind her on the far side), each
+ * glowing and dimming in its own time, a soft halo round it while it's lit; the first settles in her
+ * cupped hands a while, glowing steadily; then they drift up and away.
+ */
+export function paintFireflies({ pose, set, hips, hand, farHand }: Scene): void {
+  const t = pose.fireflies ?? 0
+  if (t <= 0 || t >= 1) return
+  const middle = { x: hips.x, y: hips.y - 16 }
+  const cupped = farHand
+    ? { x: (hand.x + farHand.x) / 2, y: Math.min(hand.y, farHand.y) - 3 }
+    : { x: hand.x, y: hand.y - 3 }
+  const gather = stage(t, ...FIREFLIES.gather)
+  const leave = stage(t, ...FIREFLIES.leave)
+  const rest = stage(t, ...FIREFLIES.rest)
+  const resting = rest > 0 && rest < 1
+  for (let k = 0; k < FIREFLIES.count; k++) {
+    const phase = (k / FIREFLIES.count) * Math.PI * 2
+    const angle = phase + t * Math.PI * (k % 2 ? 3 : 2.4)
+    const ring = {
+      x: middle.x + Math.cos(angle) * FIREFLIES.rx * (0.8 + 0.2 * Math.sin(phase * 2)),
+      y: middle.y + Math.sin(phase * 3) * 10 + Math.sin(angle) * FIREFLIES.ry,
+    }
+    // In from off the frame, each its own way; up and away at the end.
+    const from = { x: middle.x + Math.cos(phase) * 70, y: middle.y - 30 + Math.sin(phase) * 30 }
+    const away = { x: ring.x + Math.cos(phase) * 20, y: -12 - k * 2 }
+    const come = gather * gather * (3 - 2 * gather)
+    let at = { x: from.x + (ring.x - from.x) * come, y: from.y + (ring.y - from.y) * come }
+    at = { x: at.x + (away.x - at.x) * leave, y: at.y + (away.y - at.y) * leave }
+    const settled = k === 0 && resting
+    if (settled) {
+      const settle = Math.min(1, rest * 4, (1 - rest) * 4)
+      at = { x: at.x + (cupped.x - at.x) * settle, y: at.y + (cupped.y - at.y) * settle }
+    }
+    const only = Math.sin(angle) < 0 && !settled ? '.' : undefined
+    const lit = settled || Math.sin(t * 50 + phase * 5) > -0.2
+    if (lit) {
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ] as const) {
+        set({ x: at.x + dx, y: at.y + dy }, 'H', '.')
+      }
+      set(at, 'C', only)
+    } else {
+      set(at, 'H', only)
+    }
   }
 }

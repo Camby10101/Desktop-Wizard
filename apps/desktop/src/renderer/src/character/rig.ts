@@ -140,6 +140,12 @@ export interface Pose {
   charge?: number
   /** A little spirit visiting her (from the front), this far through its habit: see SPIRIT. */
   spirit?: number
+  /** Her kite, flown on its string from her near hand (from the front): see KITE. */
+  kite?: number
+  /** Fireflies circling her (from the front), this far through the habit: see FIREFLIES. */
+  fireflies?: number
+  /** A little owl visiting, on her near hand (from the front), this far through: see OWL. */
+  owl?: number
   /** Magic bubbles blown through a little wand ring at her near hand (seen diagonally), 0 to 1. */
   bubbles?: number
   /** A will-o'-wisp going round her (from the front), 0 to 1: see wispAt. */

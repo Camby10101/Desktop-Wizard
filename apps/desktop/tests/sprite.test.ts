@@ -77,6 +77,7 @@ describe('the animations', { timeout: 30_000 }, () => {
       cards: 'deck',
       plane: 'plane',
       ball: 'ball',
+      kite: 'kite',
     } as const
     const plain = draw({ view: 'front' }).join('')
     for (const [habit, field] of Object.entries(toys)) {

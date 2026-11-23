@@ -3221,7 +3221,7 @@ const LIGHT: Point = { x: -1, y: -1 }
 
 <!-- code: apps/desktop/src/renderer/src/character/rig.ts#View,Face,Arm,Leg,Pose,DOWN,STAND,LEG_LENGTH -->
 
-[`src/renderer/src/character/rig.ts`, lines 67–203](../../apps/desktop/src/renderer/src/character/rig.ts#L67-L203)
+[`src/renderer/src/character/rig.ts`, lines 67–209](../../apps/desktop/src/renderer/src/character/rig.ts#L67-L209)
 
 ```ts
 export type View = 'front' | 'diagonal' | 'side'
@@ -3302,6 +3302,12 @@ export interface Pose {
   charge?: number
   /** A little spirit visiting her (from the front), this far through its habit: see SPIRIT. */
   spirit?: number
+  /** Her kite, flown on its string from her near hand (from the front): see KITE. */
+  kite?: number
+  /** Fireflies circling her (from the front), this far through the habit: see FIREFLIES. */
+  fireflies?: number
+  /** A little owl visiting, on her near hand (from the front), this far through: see OWL. */
+  owl?: number
   /** Magic bubbles blown through a little wand ring at her near hand (seen diagonally), 0 to 1. */
   bubbles?: number
   /** A will-o'-wisp going round her (from the front), 0 to 1: see wispAt. */
@@ -3449,7 +3455,7 @@ painters that draw them (`props/`, below), and are shown here together.
 
 <!-- code: apps/desktop/src/renderer/src/character/rig.ts#EYES,MOUTHS -->
 
-[`src/renderer/src/character/rig.ts`, lines 205–277](../../apps/desktop/src/renderer/src/character/rig.ts#L205-L277)
+[`src/renderer/src/character/rig.ts`, lines 211–283](../../apps/desktop/src/renderer/src/character/rig.ts#L211-L283)
 
 ```ts
 // Face pictures, facing right; `.` is see-through. Eyes have a thick upper lid, a dark-to-light
@@ -3544,7 +3550,7 @@ export const TWINKLE = ['.l.', 'lwl', '.l.']
 
 <!-- code: apps/desktop/src/renderer/src/character/props/charms.ts#BUTTERFLY_OPEN,BUTTERFLY_SHUT,ORBS,BUBBLE_SMALL,BUBBLE_BIG,WAND_RING,WISP -->
 
-[`src/renderer/src/character/props/charms.ts`, lines 8–29](../../apps/desktop/src/renderer/src/character/props/charms.ts#L8-L29)
+[`src/renderer/src/character/props/charms.ts`, lines 22–43](../../apps/desktop/src/renderer/src/character/props/charms.ts#L22-L43)
 
 ```ts
 /** A little magic butterfly, wings open and shut: teal wings, a white spot on each, a gold body. */
@@ -3665,7 +3671,7 @@ export const TRAIL = { perStride: 4, drift: 53, life: 0.45 }
 
 <!-- code: apps/desktop/src/renderer/src/character/props/charms.ts#JUGGLE,BUBBLES,wispAt -->
 
-[`src/renderer/src/character/props/charms.ts`, lines 31–65](../../apps/desktop/src/renderer/src/character/props/charms.ts#L31-L65)
+[`src/renderer/src/character/props/charms.ts`, lines 45–79](../../apps/desktop/src/renderer/src/character/props/charms.ts#L45-L79)
 
 ```ts
 /**
@@ -3750,7 +3756,7 @@ puff before each bubble, her eyes following the wisp).
 
 <!-- code: apps/desktop/src/renderer/src/character/rig.ts#FADE -->
 
-[`src/renderer/src/character/rig.ts`, lines 279–285](../../apps/desktop/src/renderer/src/character/rig.ts#L279-L285)
+[`src/renderer/src/character/rig.ts`, lines 285–291](../../apps/desktop/src/renderer/src/character/rig.ts#L285-L291)
 
 ```ts
 /**
@@ -3781,7 +3787,7 @@ export function hash(x: number, y: number, salt = 0): number {
 
 <!-- code: apps/desktop/src/renderer/src/character/rig.ts#dissolveAt -->
 
-[`src/renderer/src/character/rig.ts`, lines 287–288](../../apps/desktop/src/renderer/src/character/rig.ts#L287-L288)
+[`src/renderer/src/character/rig.ts`, lines 293–294](../../apps/desktop/src/renderer/src/character/rig.ts#L293-L294)
 
 ```ts
 /** When a pixel dissolves (0 to 1): in a random order, the top of her a little sooner. */
@@ -3816,7 +3822,7 @@ vanishes or appears. `draw()` uses them at its very end (below).
 
 <!-- code: apps/desktop/src/renderer/src/character/rig.ts#eyesFor -->
 
-[`src/renderer/src/character/rig.ts`, lines 290–297](../../apps/desktop/src/renderer/src/character/rig.ts#L290-L297)
+[`src/renderer/src/character/rig.ts`, lines 296–303](../../apps/desktop/src/renderer/src/character/rig.ts#L296-L303)
 
 ```ts
 /** Which eyes a face uses. */
@@ -3838,7 +3844,7 @@ and `awe` and `up` both look up (their mouths are what differ).
 
 <!-- code: apps/desktop/src/renderer/src/character/rig.ts#draw -->
 
-[`src/renderer/src/character/rig.ts`, lines 299–1251](../../apps/desktop/src/renderer/src/character/rig.ts#L299-L1251)
+[`src/renderer/src/character/rig.ts`, lines 305–1257](../../apps/desktop/src/renderer/src/character/rig.ts#L305-L1257)
 
 ```ts
 /** Draws one pose as rows of palette letters. */
@@ -5160,7 +5166,7 @@ Math.PI) % 2`), which turn with `spin`. Six white runes (`w`) go round the outer
 
 <!-- code: apps/desktop/src/renderer/src/character/rig.ts#HAT,HAIR,ROBE,castShadows -->
 
-[`src/renderer/src/character/rig.ts`, lines 1253–1285](../../apps/desktop/src/renderer/src/character/rig.ts#L1253-L1285)
+[`src/renderer/src/character/rig.ts`, lines 1259–1291](../../apps/desktop/src/renderer/src/character/rig.ts#L1259-L1291)
 
 ```ts
 /** Letters by part, for castShadows. */
@@ -5328,7 +5334,7 @@ to)`, how far `t` is through a stretch of a habit (0 before it, 1 after); `hash(
 
 <!-- code: apps/desktop/src/renderer/src/character/props/index.ts -->
 
-[`src/renderer/src/character/props/index.ts`, lines 1–59](../../apps/desktop/src/renderer/src/character/props/index.ts#L1-L59)
+[`src/renderer/src/character/props/index.ts`, lines 1–69](../../apps/desktop/src/renderer/src/character/props/index.ts#L1-L69)
 
 ```ts
 // Everything drawn round her (her toys, her spells' effects, visitors, sparkles and hearts), in
@@ -5338,7 +5344,14 @@ to)`, how far `t` is through a stretch of a habit (0 before it, 1 after); `hash(
 
 import type { Paint } from './kit'
 import { paintDizzy, paintDust, paintTrail } from './basics'
-import { paintBubbles, paintButterfly, paintJuggle, paintSpell, paintWisp } from './charms'
+import {
+  paintBubbles,
+  paintButterfly,
+  paintFireflies,
+  paintJuggle,
+  paintSpell,
+  paintWisp,
+} from './charms'
 import { paintConfetti, paintSneeze, paintZzz } from './everyday'
 import {
   paintBloom,
@@ -5354,8 +5367,8 @@ import {
 } from './magic'
 import { paintCharge } from './performances'
 import { paintHearts, paintScroll, paintSweat } from './reactions'
-import { paintBall, paintDeck, paintPlane, paintSpinTop, paintYoyo } from './toys'
-import { paintSpirit } from './visitors'
+import { paintBall, paintDeck, paintKite, paintPlane, paintSpinTop, paintYoyo } from './toys'
+import { paintOwl, paintSpirit } from './visitors'
 
 export const PROPS: readonly Paint[] = [
   paintButterfly,
@@ -5366,10 +5379,13 @@ export const PROPS: readonly Paint[] = [
   paintDeck,
   paintPlane,
   paintBall,
+  paintKite,
   paintCharge,
   paintSpirit,
+  paintOwl,
   paintBubbles,
   paintWisp,
+  paintFireflies,
   paintSneeze,
   paintTrail,
   paintSpell,
@@ -5625,15 +5641,29 @@ A dozer's z's, a sneeze's sparkles, and confetti on Friday evenings.
 
 <!-- code: apps/desktop/src/renderer/src/character/props/charms.ts -->
 
-[`src/renderer/src/character/props/charms.ts`, lines 1–191](../../apps/desktop/src/renderer/src/character/props/charms.ts#L1-L191)
+[`src/renderer/src/character/props/charms.ts`, lines 1–257](../../apps/desktop/src/renderer/src/character/props/charms.ts#L1-L257)
 
 ```ts
 // What's drawn round her charms: a butterfly, juggled orbs, bubbles, a will-o'-wisp, a little spell.
 
 import type { Scene } from './kit'
-import { SPARKLE, TWINKLE } from './kit'
+import { SPARKLE, TWINKLE, stage } from './kit'
 import { add, type Point } from '../raster'
 import { DIAGONAL_MOUTH } from '../pictures'
+
+/**
+ * The fireflies (Pose.fireflies): how many; coming to her, circling her, one resting in her cupped
+ * hands, and drifting away (shares of the habit); the ring they circle on (pixels across and up and
+ * down from the middle of her).
+ */
+export const FIREFLIES = {
+  count: 7,
+  gather: [0.04, 0.26],
+  rest: [0.44, 0.62],
+  leave: [0.76, 0.98],
+  rx: 26,
+  ry: 9,
+} as const
 
 /** A little magic butterfly, wings open and shut: teal wings, a white spot on each, a gold body. */
 export const BUTTERFLY_OPEN = ['GG.GG', 'GwkwG', '.G.G.']
@@ -5817,6 +5847,58 @@ export function paintSpell({ pose, canvas, hand }: Scene): void {
       hand.x - 1 + Math.cos(spin + 4.2) * 5,
       hand.y - 1 - 3 + Math.sin(spin + 4.2) * 3,
     )
+  }
+}
+
+/**
+ * Fireflies: they come to her from all round, circling her (behind her on the far side), each
+ * glowing and dimming in its own time, a soft halo round it while it's lit; the first settles in her
+ * cupped hands a while, glowing steadily; then they drift up and away.
+ */
+export function paintFireflies({ pose, set, hips, hand, farHand }: Scene): void {
+  const t = pose.fireflies ?? 0
+  if (t <= 0 || t >= 1) return
+  const middle = { x: hips.x, y: hips.y - 16 }
+  const cupped = farHand
+    ? { x: (hand.x + farHand.x) / 2, y: Math.min(hand.y, farHand.y) - 3 }
+    : { x: hand.x, y: hand.y - 3 }
+  const gather = stage(t, ...FIREFLIES.gather)
+  const leave = stage(t, ...FIREFLIES.leave)
+  const rest = stage(t, ...FIREFLIES.rest)
+  const resting = rest > 0 && rest < 1
+  for (let k = 0; k < FIREFLIES.count; k++) {
+    const phase = (k / FIREFLIES.count) * Math.PI * 2
+    const angle = phase + t * Math.PI * (k % 2 ? 3 : 2.4)
+    const ring = {
+      x: middle.x + Math.cos(angle) * FIREFLIES.rx * (0.8 + 0.2 * Math.sin(phase * 2)),
+      y: middle.y + Math.sin(phase * 3) * 10 + Math.sin(angle) * FIREFLIES.ry,
+    }
+    // In from off the frame, each its own way; up and away at the end.
+    const from = { x: middle.x + Math.cos(phase) * 70, y: middle.y - 30 + Math.sin(phase) * 30 }
+    const away = { x: ring.x + Math.cos(phase) * 20, y: -12 - k * 2 }
+    const come = gather * gather * (3 - 2 * gather)
+    let at = { x: from.x + (ring.x - from.x) * come, y: from.y + (ring.y - from.y) * come }
+    at = { x: at.x + (away.x - at.x) * leave, y: at.y + (away.y - at.y) * leave }
+    const settled = k === 0 && resting
+    if (settled) {
+      const settle = Math.min(1, rest * 4, (1 - rest) * 4)
+      at = { x: at.x + (cupped.x - at.x) * settle, y: at.y + (cupped.y - at.y) * settle }
+    }
+    const only = Math.sin(angle) < 0 && !settled ? '.' : undefined
+    const lit = settled || Math.sin(t * 50 + phase * 5) > -0.2
+    if (lit) {
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1],
+      ] as const) {
+        set({ x: at.x + dx, y: at.y + dy }, 'H', '.')
+      }
+      set(at, 'C', only)
+    } else {
+      set(at, 'H', only)
+    }
   }
 }
 ```
@@ -6505,7 +6587,7 @@ cloud over her hat, a bubbling potion, and her spellbook floating open with lett
 
 <!-- code: apps/desktop/src/renderer/src/character/props/toys.ts -->
 
-[`src/renderer/src/character/props/toys.ts`, lines 1–285](../../apps/desktop/src/renderer/src/character/props/toys.ts#L1-L285)
+[`src/renderer/src/character/props/toys.ts`, lines 1–368](../../apps/desktop/src/renderer/src/character/props/toys.ts#L1-L368)
 
 ```ts
 // Her toys, summoned for a few seconds each: a yo-yo, a spinning top, cards, a paper plane and a
@@ -6514,6 +6596,33 @@ cloud over her hat, a bubbling potion, and her spellbook floating open with lett
 import type { Scene } from './kit'
 import { SPARKLE, TWINKLE, stage } from './kit'
 import { type Point, type Canvas } from '../raster'
+
+/**
+ * Her kite (Pose.kite): it appears in her hand, climbs into the sky on its string, flies (swooping),
+ * is reeled back in, and goes (shares of the habit); where it flies: across from the middle of her
+ * (pixels; it swoops `swoop` either side) and at which row of the frame.
+ */
+export const KITE = {
+  appear: [0.03, 0.12],
+  rise: [0.12, 0.32],
+  fly: [0.32, 0.78],
+  reel: [0.78, 0.9],
+  gone: [0.9, 0.98],
+  across: 30,
+  swoop: 4,
+  sky: 3,
+} as const
+
+/** Her kite, a diamond: red edges, pink panels and a gold cross of spars. */
+export const KITE_PICTURE = [
+  '...m...',
+  '..mcm..',
+  '.mcYcm.',
+  'mYYYYYm',
+  '.mcYcm.',
+  '..mcm..',
+  '...m...',
+]
 
 /** Her yo-yo, spinning (two turns, a frame each): pink, a gold band, a white glint. */
 export const YOYO_SPIN = [
@@ -6762,6 +6871,62 @@ export function paintPlane({ pose, set, hand, onBody, canvas }: Scene): void {
 }
 
 /**
+ * Her kite: it appears in her near hand in a sparkle, climbs into the sky on its silver string,
+ * swoops and dips there in a lazy figure of eight with its tail of bows streaming, and is reeled
+ * back down to her hand; then gone.
+ */
+export function paintKite({ pose, canvas, set, hand, hips }: Scene): void {
+  const { poof, shows } = toyKit(canvas)
+  const kite = pose.kite ?? 0
+  if (kite <= 0 || kite >= 1) return
+  const held = { x: hand.x, y: hand.y - 4 }
+  // Out to her side, clear of the frame's edge however far her hand reaches.
+  const sky = { x: hips.x + KITE.across, y: KITE.sky }
+  const ease = (v: number) => v * v * (3 - 2 * v)
+  const flying = kite >= KITE.fly[0] && kite < KITE.fly[1]
+  const fly = stage(kite, ...KITE.fly)
+  // How far up it is: climbing, up, or reeled back in.
+  const out =
+    kite < KITE.fly[0]
+      ? ease(stage(kite, ...KITE.rise))
+      : kite < KITE.reel[0]
+        ? 1
+        : 1 - ease(stage(kite, ...KITE.reel))
+  const swoop = flying ? Math.sin(fly * Math.PI * 4) : 0
+  const at = {
+    x: held.x + (sky.x - held.x) * out + swoop * KITE.swoop,
+    y: held.y + (sky.y - held.y) * out + (flying ? Math.sin(fly * Math.PI * 8) * 2.5 : 0),
+  }
+  const appear = stage(kite, ...KITE.appear)
+  const gone = stage(kite, ...KITE.gone)
+  if (shows(appear, gone)) {
+    if (out > 0.05) {
+      // The string, sagging a little, from her hand to the kite's bottom point, behind anything.
+      const end = { x: at.x, y: at.y + 3 }
+      const steps = Math.ceil(Math.hypot(end.x - hand.x, end.y - hand.y))
+      for (let i = 1; i < steps; i++) {
+        const t = i / steps
+        const sag = 3 * 4 * t * (1 - t) * out
+        set({ x: hand.x + (end.x - hand.x) * t, y: hand.y + (end.y - hand.y) * t + sag }, 'f', '.')
+      }
+    }
+    canvas.stamp(KITE_PICTURE, at.x - 3, at.y - 3)
+    // Its tail: three bows trailing below it, streaming one way and the other as it swoops.
+    for (let k = 1; k <= 3; k++) {
+      const bow = {
+        x: at.x - swoop * k * 1.5 + Math.sin(kite * 40 + k) * out,
+        y: at.y + 3 + k * 2.5,
+      }
+      set({ x: bow.x, y: bow.y - 1 }, 'f', '.')
+      set({ x: bow.x - 1, y: bow.y }, k % 2 ? 'G' : 'Y')
+      set({ x: bow.x + 1, y: bow.y }, k % 2 ? 'G' : 'Y')
+    }
+  }
+  poof(held, appear)
+  poof(at, gone)
+}
+
+/**
  * Her bouncy ball: in her near hand; bounced on the taskbar a few times (squashing as it hits),
  * then tossed up high and caught; then gone.
  */
@@ -6806,7 +6971,7 @@ of her is (`set(…, '.')`).
 
 <!-- code: apps/desktop/src/renderer/src/character/props/visitors.ts -->
 
-[`src/renderer/src/character/props/visitors.ts`, lines 1–113](../../apps/desktop/src/renderer/src/character/props/visitors.ts#L1-L113)
+[`src/renderer/src/character/props/visitors.ts`, lines 1–223](../../apps/desktop/src/renderer/src/character/props/visitors.ts#L1-L223)
 
 ```ts
 // Her visitors: the little spirit that comes to see her.
@@ -6921,6 +7086,116 @@ export function paintSpirit({ pose, canvas, set, hand, onHead }: Scene): void {
       else canvas.stamp(TWINKLE, at.x - 1, at.y - 1)
     }
   }
+}
+
+/**
+ * The owl's visit (Pose.owl): flying in, perched on her hand, its blinks, looking at her, its hoot,
+ * and flying off (shares of the habit).
+ */
+export const OWL = {
+  arrive: [0.06, 0.28],
+  perch: [0.28, 0.74],
+  blinks: [0.38, 0.56],
+  look: [0.44, 0.52],
+  hoot: [0.6, 0.72],
+  leave: [0.74, 0.96],
+} as const
+
+/**
+ * A little owl, perched: ear tufts, a pale face with gold eyes, a gold beak, a speckled breast and
+ * gold talons, in the boots' browns. Its eyes' row is swapped for OWL_EYES.
+ */
+export const OWL_PERCHED = [
+  'B.......B',
+  'BbbbbbbbB',
+  'bJJJbJJJb',
+  'JYeJbJeYJ',
+  'bJJJkJJJb',
+  '.bbbkbbb.',
+  'BbyyyyybB',
+  'BbyJyJybB',
+  '.Bbyyybb.',
+  '..k...k..',
+]
+
+/** The owl's eyes (OWL_PERCHED's fourth row): ahead, shut, and looking across at her. */
+export const OWL_EYES = { ahead: 'JYeJbJeYJ', shut: 'JeeJbJeeJ', across: 'JeYJbJeYJ' } as const
+
+/** Its wings beating as it flies, up and down: pixels out from its left side (mirrored for its right). */
+const OWL_WINGS = [
+  [
+    [-1, 4],
+    [-2, 3],
+    [-3, 2],
+    [-4, 1],
+    [-3, 3],
+    [-2, 4],
+  ],
+  [
+    [-1, 5],
+    [-2, 6],
+    [-3, 7],
+    [-4, 8],
+    [-3, 6],
+    [-2, 7],
+  ],
+] as const
+
+/** Its hoot: a little note, floating up. */
+const NOTE = ['.ff', '.f.', 'ff.']
+
+/**
+ * A little owl: it flies in from high to one side and lands on her near hand (its talons on her
+ * fingers), blinks, turns its eyes to her, hoots (a note floating up), and flies off over her head
+ * and away, its wings beating as it flies.
+ */
+export function paintOwl({ pose, canvas, set, hand, hips }: Scene): void {
+  const t = pose.owl ?? 0
+  if (t < OWL.arrive[0] || t >= 1) return
+  // Where it perches: on her hand, held out to her side. Its flights in and off are measured from
+  // that spot as it is with her arm out (her hand goes up to wave as it leaves).
+  const spot = { x: hips.x + 22, y: hips.y - 6 }
+  const perch = t >= OWL.arrive[1] && t < OWL.leave[0] ? { x: hand.x, y: hand.y - 1 } : spot
+  const from = { x: spot.x + 40, y: spot.y - 50 }
+  const to = { x: spot.x - 70, y: spot.y - 70 }
+  const arrive = stage(t, ...OWL.arrive)
+  const leave = stage(t, ...OWL.leave)
+  let at = perch
+  let flying = false
+  if (t < OWL.arrive[1]) {
+    // Gliding in, slowing as it lands, in a shallow dip.
+    const e = 1 - (1 - arrive) * (1 - arrive)
+    at = {
+      x: from.x + (spot.x - from.x) * e,
+      y: from.y + (spot.y - from.y) * e + Math.sin(e * Math.PI) * 6,
+    }
+    flying = true
+  } else if (t >= OWL.leave[0]) {
+    // Off: climbing steeply first, so it passes above her hat, then away to the far side.
+    at = {
+      x: spot.x + (to.x - spot.x) * leave * leave,
+      y: spot.y + (to.y - spot.y) * Math.sqrt(leave),
+    }
+    flying = true
+  }
+  const blink = OWL.blinks.some((b) => Math.abs(t - b) < 0.012)
+  const looking = t >= OWL.look[0] && t < OWL.look[1]
+  const eyes = blink ? OWL_EYES.shut : looking && !flying ? OWL_EYES.across : OWL_EYES.ahead
+  const x0 = Math.round(at.x) - 4
+  const y0 = Math.round(at.y) - 9
+  canvas.stamp(
+    OWL_PERCHED.map((row, r) => (r === 3 ? eyes : row)),
+    x0,
+    y0,
+  )
+  if (flying) {
+    for (const [dx, dy] of OWL_WINGS[Math.floor(t * 60) % 2]!) {
+      set({ x: x0 + dx, y: y0 + dy }, 'B')
+      set({ x: x0 + 8 - dx, y: y0 + dy }, 'B')
+    }
+  }
+  const hoot = stage(t, ...OWL.hoot)
+  if (hoot > 0 && hoot < 1) canvas.stamp(NOTE, x0 + 9 + hoot * 3, y0 - 2 - hoot * 8)
 }
 ```
 
@@ -7164,12 +7439,12 @@ export const SPRITE_HEADROOM = HEADROOM
 
 <!-- code: apps/desktop/src/renderer/src/character/palette.ts -->
 
-[`src/renderer/src/character/palette.ts`, lines 1–64](../../apps/desktop/src/renderer/src/character/palette.ts#L1-L64)
+[`src/renderer/src/character/palette.ts`, lines 1–69](../../apps/desktop/src/renderer/src/character/palette.ts#L1-L69)
 
 ```ts
 // Her colours: each palette letter (a pixel of a frame) and the CSS class that colours it, in
 // components/character.css (a test checks every class has a colour there). `.` is see-through.
-// Letters free for a new colour: C, H, J, M, Z and t (X is taken: the potion's flask picture marks
+// Letters free for a new colour: M, Z and t (X is taken: the potion's flask picture marks
 // its liquid with it, swapped for the potion's colour as it's drawn).
 
 /** Each letter's colour, as a CSS class (character.css): robe and hat follow the accent colour. */
@@ -7230,6 +7505,11 @@ export const PALETTE: Record<string, string> = {
   U: 'px-spirit',
   V: 'px-spirit-wing',
   W: 'px-spirit-eye',
+  // Fireflies: a firefly's glow, and its glow dimmed (or the halo round it).
+  C: 'px-firefly',
+  H: 'px-firefly-dim',
+  // The owl's face and breast speckles (its feathers are the boots' browns).
+  J: 'px-owl-face',
 }
 ```
 
@@ -7837,7 +8117,7 @@ As the comment says, reading her spellbook, seen diagonally.
 
 <!-- code: apps/desktop/src/renderer/src/character/moves/charms.ts#spell -->
 
-[`src/renderer/src/character/moves/charms.ts`, lines 21–44](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L21-L44)
+[`src/renderer/src/character/moves/charms.ts`, lines 25–48](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L25-L48)
 
 ```ts
 /** A little spell: her hand up, sparkles circling it, then gone with a smile. */
@@ -7882,7 +8162,7 @@ As the comment says, a little spell, seen diagonally.
 
 <!-- code: apps/desktop/src/renderer/src/character/moves/charms.ts#vision -->
 
-[`src/renderer/src/character/moves/charms.ts`, lines 46–80](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L46-L80)
+[`src/renderer/src/character/moves/charms.ts`, lines 50–84](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L50-L84)
 
 ```ts
 /**
@@ -7951,7 +8231,7 @@ blinking once; she watches it rise away, then settles and blinks.
 
 <!-- code: apps/desktop/src/renderer/src/character/moves/charms.ts#levitate -->
 
-[`src/renderer/src/character/moves/charms.ts`, lines 82–132](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L82-L132)
+[`src/renderer/src/character/moves/charms.ts`, lines 86–136](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L86-L136)
 
 ```ts
 /**
@@ -8143,7 +8423,7 @@ tilted, smiling.
 
 <!-- code: apps/desktop/src/renderer/src/character/moves/charms.ts#orb -->
 
-[`src/renderer/src/character/moves/charms.ts`, lines 134–167](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L134-L167)
+[`src/renderer/src/character/moves/charms.ts`, lines 138–171](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L138-L171)
 
 ```ts
 /**
@@ -8271,7 +8551,7 @@ frame, and it reuses a few drawings.
 
 <!-- code: apps/desktop/src/renderer/src/character/moves/charms.ts#butterfly -->
 
-[`src/renderer/src/character/moves/charms.ts`, lines 169–193](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L169-L193)
+[`src/renderer/src/character/moves/charms.ts`, lines 173–197](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L173-L197)
 
 ```ts
 /**
@@ -8466,7 +8746,7 @@ export const between = (t: number, from: number, to: number) =>
 
 <!-- code: apps/desktop/src/renderer/src/character/moves/charms.ts#juggle -->
 
-[`src/renderer/src/character/moves/charms.ts`, lines 195–225](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L195-L225)
+[`src/renderer/src/character/moves/charms.ts`, lines 199–229](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L199-L229)
 
 ```ts
 /**
@@ -8541,7 +8821,7 @@ Like `butterfly()`, every frame is its own pose, worked out from how far through
 
 <!-- code: apps/desktop/src/renderer/src/character/moves/charms.ts#bubbles -->
 
-[`src/renderer/src/character/moves/charms.ts`, lines 227–256](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L227-L256)
+[`src/renderer/src/character/moves/charms.ts`, lines 231–260](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L231-L260)
 
 ```ts
 /**
@@ -8600,7 +8880,7 @@ rig's `bubbles`, and the rig places the bubbles and the wand from that.
 
 <!-- code: apps/desktop/src/renderer/src/character/moves/charms.ts#wisp -->
 
-[`src/renderer/src/character/moves/charms.ts`, lines 258–285](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L258-L285)
+[`src/renderer/src/character/moves/charms.ts`, lines 262–289](../../apps/desktop/src/renderer/src/character/moves/charms.ts#L262-L289)
 
 ```ts
 /**
@@ -9828,14 +10108,14 @@ export const MAGIC_MOVES = {
 
 <!-- code: apps/desktop/src/renderer/src/character/moves/toys.ts -->
 
-[`src/renderer/src/character/moves/toys.ts`, lines 1–154](../../apps/desktop/src/renderer/src/character/moves/toys.ts#L1-L154)
+[`src/renderer/src/character/moves/toys.ts`, lines 1–180](../../apps/desktop/src/renderer/src/character/moves/toys.ts#L1-L180)
 
 ```ts
 // Her toys (HABITS, kind 'toy'): habits where she summons a toy and plays with it a few seconds.
 
 import { FIDGET_MS } from '@shared/character'
 import { type Arm, type Face } from '../rig'
-import { BALL, DECK, PLANE, SPIN_TOP, YOYO } from '../props/toys'
+import { BALL, DECK, KITE, PLANE, SPIN_TOP, YOYO } from '../props/toys'
 import {
   type Key,
   lerp,
@@ -9977,6 +10257,31 @@ export function ball(): Key[] {
   })
 }
 
+/**
+ * Her kite, from the front: she holds her hand out and a kite appears in it; she lets it climb on
+ * its string, her arm rising with it, and watches it swoop and dip (a tug now and then), smiling;
+ * reels it back in, and it vanishes.
+ */
+export function kite(): Key[] {
+  return through(FIDGET_MS.kite, (t) => {
+    const ready = between(t, 0, 0.08) * (1 - between(t, 0.92, 1))
+    const up = between(t, KITE.rise[0], KITE.rise[1]) * (1 - between(t, KITE.reel[0], KITE.reel[1]))
+    // A quick tug on the string, three times while it flies.
+    const tug = Math.max(0, Math.sin(span(t, KITE.fly) * Math.PI * 6)) ** 8 * 0.25
+    const holding = { shoulder: lerp(1.2, 2.1, up) - tug, elbow: lerp(-0.9, -0.2, up) }
+    const arm = toward(holding, ready)
+    const flying = t >= KITE.rise[0] && t < KITE.reel[1]
+    const face: Face = flying
+      ? t > 0.5
+        ? blinking(t, 0.62, 'happy')
+        : 'up'
+      : t >= KITE.reel[1]
+        ? 'happy'
+        : 'neutral'
+    return { view: 'front', kite: t, face, tilt: 0.06 * up, arms: [arm, ARM_DOWN] }
+  })
+}
+
 /** Her toys, by pose (each plays once, for its HABITS `ms`). */
 export const TOY_MOVES = {
   yoyo: once(yoyo),
@@ -9984,6 +10289,7 @@ export const TOY_MOVES = {
   cards: once(cards),
   plane: once(plane),
   ball: once(ball),
+  kite: once(kite),
 } satisfies Moves
 ```
 
@@ -9991,14 +10297,14 @@ export const TOY_MOVES = {
 
 <!-- code: apps/desktop/src/renderer/src/character/moves/visitors.ts -->
 
-[`src/renderer/src/character/moves/visitors.ts`, lines 1–64](../../apps/desktop/src/renderer/src/character/moves/visitors.ts#L1-L64)
+[`src/renderer/src/character/moves/visitors.ts`, lines 1–102](../../apps/desktop/src/renderer/src/character/moves/visitors.ts#L1-L102)
 
 ```ts
 // Her visitors (HABITS, kind 'visitor'): habits where something comes to see her.
 
 import { FIDGET_MS } from '@shared/character'
 import { type Arm, type Face } from '../rig'
-import { SPIRIT } from '../props/visitors'
+import { OWL, SPIRIT } from '../props/visitors'
 import {
   type Key,
   lerp,
@@ -10054,9 +10360,47 @@ export function spirit(): Key[] {
   })
 }
 
+/**
+ * A little owl visiting, from the front: it flies in and she holds her arm out for it, surprised
+ * and then delighted; it lands on her hand (her arm dipping with its weight), blinks, turns to look
+ * at her and hoots, and she smiles back, her head tilting to it; it flies off over her head, and she
+ * waves it goodbye.
+ */
+export function owl(): Key[] {
+  return through(FIDGET_MS.owl, (t) => {
+    const out =
+      between(t, OWL.arrive[0], OWL.arrive[1] - 0.06) *
+      (1 - between(t, OWL.leave[0] + 0.04, OWL.leave[0] + 0.1))
+    const landing = t >= OWL.perch[0] && t < OWL.perch[0] + 0.05
+    const dip = landing ? Math.sin(((t - OWL.perch[0]) / 0.05) * Math.PI) * 0.12 : 0
+    const perched = toward({ shoulder: OUT_SIDE.shoulder - dip, elbow: OUT_SIDE.elbow }, out)
+    const waving =
+      between(t, OWL.leave[0] + 0.08, OWL.leave[0] + 0.12) * (1 - between(t, 0.93, 0.98))
+    const swing = Math.sin(t * 80) * waving
+    const arm: Arm =
+      waving > 0
+        ? {
+            shoulder: lerp(perched.shoulder, 2.5 + 0.15 * swing, waving),
+            elbow: lerp(perched.elbow, 0.3 + 0.35 * swing, waving),
+          }
+        : perched
+    const watching = t >= OWL.perch[0] && t < OWL.leave[0]
+    const face: Face =
+      t < OWL.arrive[0] + 0.04
+        ? 'neutral'
+        : t < OWL.perch[0]
+          ? 'surprised'
+          : blinking(t, watching ? 0.5 : 0.9, 'happy')
+    const look =
+      t < OWL.perch[0] ? 0.6 : watching ? 0.5 : -0.4 * between(t, OWL.leave[0], OWL.leave[1])
+    return { view: 'front', owl: t, face, look, tilt: watching ? 0.07 : 0, arms: [arm, ARM_DOWN] }
+  })
+}
+
 /** Her visitors, by pose (each plays once, for its HABITS `ms`). */
 export const VISITOR_MOVES = {
   spirit: once(spirit),
+  owl: once(owl),
 } satisfies Moves
 ```
 
@@ -10766,7 +11110,7 @@ Plays a pose's frames, as the comment says.
 
 <!-- code: apps/desktop/src/renderer/src/components/character.css -->
 
-[`src/renderer/src/components/character.css`, lines 1–182](../../apps/desktop/src/renderer/src/components/character.css#L1-L182)
+[`src/renderer/src/components/character.css`, lines 1–195](../../apps/desktop/src/renderer/src/components/character.css#L1-L195)
 
 ```css
 /*
@@ -10933,6 +11277,19 @@ Plays a pose's frames, as the comment says.
 }
 .px-spirit-eye {
   fill: #1f2d3d;
+}
+
+/* Fireflies: a warm yellow-green glow, and dimmed. */
+.px-firefly {
+  fill: #f4ff9a;
+}
+.px-firefly-dim {
+  fill: #a6c447;
+}
+
+/* The owl's pale face. */
+.px-owl-face {
+  fill: #f1e0bd;
 }
 
 /* Her shadow on the taskbar, in the accent colour while the panel is open. */

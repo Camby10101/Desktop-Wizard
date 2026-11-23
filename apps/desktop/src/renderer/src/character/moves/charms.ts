@@ -1,8 +1,8 @@
 // Her charms (HABITS, kind 'charm'): habits with a touch of magic in them.
 
 import { FIDGET_MS } from '@shared/character'
-import { type Arm, type Pose } from '../rig'
-import { BUBBLES, JUGGLE, wispAt } from '../props/charms'
+import { type Arm, type Face, type Pose } from '../rig'
+import { BUBBLES, FIREFLIES, JUGGLE, wispAt } from '../props/charms'
 import {
   type Key,
   lerp,
@@ -14,6 +14,10 @@ import {
   FRONT,
   DIAGONAL,
   between,
+  through,
+  toward,
+  CUPPED,
+  blinking,
   type Moves,
   once,
 } from './kit'
@@ -284,6 +288,31 @@ export function wisp(): Key[] {
   })
 }
 
+/**
+ * Fireflies, from the front: they gather round her and she looks about in wonder, her eyes after
+ * them; she cups her hands and one settles there, glowing, and she smiles down at it; it lifts away,
+ * and she watches them all drift off.
+ */
+export function fireflies(): Key[] {
+  return through(FIDGET_MS.fireflies, (t) => {
+    const cup =
+      between(t, FIREFLIES.rest[0] - 0.08, FIREFLIES.rest[0]) *
+      (1 - between(t, FIREFLIES.rest[1], FIREFLIES.rest[1] + 0.08))
+    const arm = toward(CUPPED, cup)
+    const resting = t >= FIREFLIES.rest[0] && t < FIREFLIES.rest[1]
+    const look = resting ? 0 : Math.sin(t * Math.PI * 4) * 0.8 * between(t, 0.1, 0.2)
+    const face: Face =
+      t < FIREFLIES.gather[0] + 0.06
+        ? 'neutral'
+        : resting
+          ? blinking(t, 0.53, 'happy')
+          : t >= FIREFLIES.leave[0]
+            ? 'up'
+            : 'awe'
+    return { view: 'front', fireflies: t, face, look, tilt: resting ? 0.05 : 0, arms: [arm, arm] }
+  })
+}
+
 /** Her charms, by pose (each plays once, for its HABITS `ms`). */
 export const CHARM_MOVES = {
   spell: once(spell),
@@ -294,4 +323,5 @@ export const CHARM_MOVES = {
   juggle: once(juggle),
   bubbles: once(bubbles),
   wisp: once(wisp),
+  fireflies: once(fireflies),
 } satisfies Moves

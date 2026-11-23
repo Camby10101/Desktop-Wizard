@@ -1,6 +1,6 @@
 // Her colours: each palette letter (a pixel of a frame) and the CSS class that colours it, in
 // components/character.css (a test checks every class has a colour there). `.` is see-through.
-// Letters free for a new colour: C, H, J, M, Z and t (X is taken: the potion's flask picture marks
+// Letters free for a new colour: M, Z and t (X is taken: the potion's flask picture marks
 // its liquid with it, swapped for the potion's colour as it's drawn).
 
 /** Each letter's colour, as a CSS class (character.css): robe and hat follow the accent colour. */
@@ -61,4 +61,9 @@ export const PALETTE: Record<string, string> = {
   U: 'px-spirit',
   V: 'px-spirit-wing',
   W: 'px-spirit-eye',
+  // Fireflies: a firefly's glow, and its glow dimmed (or the halo round it).
+  C: 'px-firefly',
+  H: 'px-firefly-dim',
+  // The owl's face and breast speckles (its feathers are the boots' browns).
+  J: 'px-owl-face',
 }
