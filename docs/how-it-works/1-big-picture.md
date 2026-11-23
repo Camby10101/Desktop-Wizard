@@ -44,14 +44,15 @@ of the screen. Click her and a panel of icons opens beside her. For Morse Micro 
 - **IT service desk**: raising an IT request (finished on the help-centre portal) and following the
   user's own requests;
 - **Take screenshot**, **Settings** (light or dark, her size from ½× to 6×, her robe's colour,
-  Stand still, No idle animations, Start with Windows, Check for updates, Uninstall), **Spells**
+  Stand still, No idle animations, Hide in full-screen apps, Start with Windows, Check for updates,
+  Uninstall), **Spells**
   (eleven, from ten clones of herself to summoning her familiar), **Screen saver** and **Close**.
 
 Left alone, she has a life of her own:
 
-- she strolls near her corner and does **habits**: 38 of them, ten magic, five where she summons a
-  toy and plays with it (a yo-yo, a spinning top, cards, a paper plane, a bouncy ball), one a visit
-  from a little spirit, two only at certain times
+- she strolls near her corner and does **habits**: 41 of them, ten magic, six where she summons a
+  toy and plays with it (a yo-yo, a spinning top, cards, a paper plane, a bouncy ball, a kite), two
+  visits (a little spirit, an owl), two only at certain times
   (yawning late at night, confetti on Friday evenings);
 - now and then she **performs**: peeks round a window, waves through a portal on top of one, gets a visit from her black
   cat, and, rarely, plays **tricks with the taskbar's icons** (all pretend: nothing really moves) or
@@ -118,7 +119,7 @@ Desktop-Assist/
 │   │   ├── lib/                   drawing and motion: spells, screen saver, clones, the cat
 │   │   └── hooks/                 small reusable bits of page logic
 │   ├── src/shared/                types and constants all three parts agree on
-│   ├── tests/                     41 test files (Vitest)
+│   ├── tests/                     44 test files (Vitest)
 │   └── electron-builder.cjs …     installer, build, TypeScript, lint and test settings
 ├── tenants/morse-micro/           tenant.json, logo.png, icon.png
 ├── scripts/                       Code Guide, PDFs, release signing, publishing the installer

@@ -731,10 +731,10 @@ export const isFidget = (pose: Pose): pose is Fidget =>
   likely (`weight`, 1 if left out). The kind says where it's made: its move in
   `character/moves/` (`everyday.ts`, `charms.ts`, `magic.ts`, `toys.ts` or `visitors.ts`) and
   anything it draws round her in the same-named file in `character/props/`.
-- `HABIT_LIST`: the 38 things she does now and then once she's been left alone a while, one entry
+- `HABIT_LIST`: the 41 things she does now and then once she's been left alone a while, one entry
   each, its name the key, each described in the comment above it. Ten are magic (`flame`, `frost`,
-  `bloom`, `sigil`, `rainbow`, `hat`, `star`, `rain`, `potion`, `tome`), five are toys she summons
-  (`yoyo`, `top`, `cards`, `plane`, `ball`), and one a visitor (`spirit`). `vision` is rarer than the
+  `bloom`, `sigil`, `rainbow`, `hat`, `star`, `rain`, `potion`, `tome`), six are toys she summons
+  (`yoyo`, `top`, `cards`, `plane`, `ball`, `kite`), and two visitors (`spirit`, `owl`). `vision` is rarer than the
   rest (`weight: 0.2`), and needs more than her own window: the light and the company's logo are
   drawn in a window of their own above her (see `VISION` below); everything else is drawn in her own
   window. `satisfies Record<string, Habit>` checks every entry is a `Habit` while keeping the

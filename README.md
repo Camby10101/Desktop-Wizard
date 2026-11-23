@@ -5,7 +5,7 @@ corner of the screen and opens a panel when clicked. Built for Morse Micro first
 [`tenants/`](tenants/README.md), so another business can use it later.
 
 **Download:** the newest installer is in [`installer/`](installer/)
-([Desktop Wizard-Setup-2.6.0.exe](installer/Desktop%20Wizard-Setup-2.6.0.exe), with its signature
+([Desktop Wizard-Setup-2.7.0.exe](installer/Desktop%20Wizard-Setup-2.7.0.exe), with its signature
 beside it). Run it to install Desktop Wizard for yourself (no admin needed); an installed copy
 updates itself from Settings → Check for updates.
 
@@ -33,11 +33,12 @@ sign-in) and 4 (logos, favourites, service desk, light/dark mode, bubble-click f
 3.1 (questions open in Claude Desktop) and 3.2 (Apps list, Uninstall) are complete, as are
 Milestone 5 (the app-opening spinner; Jira and the service desk) and its fixes 5.1 and 5.2 (the
 bubble kept in front, and Check for updates). Version **1.0.0** was the first release (see
-[PLAN.md](docs/PLAN.md) §7h and [RELEASING.md](docs/RELEASING.md)); this is version **2.6.0**, with
-the animated character (thirty-eight habits, ten of them magic, five with toys she summons and one a
-visit from a little spirit; throw her and she tumbles; tricks with the taskbar's icons and the
+[PLAN.md](docs/PLAN.md) §7h and [RELEASING.md](docs/RELEASING.md)); this is version **2.7.0**, with
+the animated character (forty-one habits, ten of them magic, six with toys she summons and two
+visits, from a little spirit and an owl; throw her and she tumbles; tricks with the taskbar's icons and the
 windows on the screen; battles with little monsters; her familiar, a black cat), her spells,
-the screen saver, and Robe colour, Stand still and No idle animations in Settings
+the screen saver, and Robe colour, Stand still, No idle animations and Hide in full-screen apps in
+Settings
 (PLAN.md §7i).
 
 **Formerly Desktop Assist.** The app was called Desktop Assist up to version 1.0.0. Updating from
@@ -70,13 +71,18 @@ name are sent on to it.
   magic circle, sits on the taskbar, twirls, has a little magic butterfly land on her finger, dozes
   off and wakes with a start, glances about, juggles three glowing orbs, blows magic bubbles
   through a wand ring, watches a will-o'-wisp go round her and waves it goodbye, sneezes a burst of
-  sparkles, or dances a little jig. Now and then she summons a toy in a sparkle and plays with it
+  sparkles, dances a little jig, or has fireflies gather round her (one resting in her cupped
+  hands) and drift away; or a little owl flies in, lands on her hand, hoots and flies off. Now and
+  then she summons a toy in a sparkle and plays with it
   for a few seconds: spins a glowing yo-yo down and up and round in a loop, sets a top spinning on
   her palm, springs a deck of cards from hand to hand, throws a paper plane that loops round her
-  and back, or bounces a ball on the taskbar and tosses it up high. When the app starts she forms out of white motes, and when it's
+  and back, bounces a ball on the taskbar and tosses it up high, or flies a kite on a string,
+  swooping high beside her. When the app starts she forms out of white motes, and when it's
   closed (Close, or Quit in the tray) she dissolves into them before it quits. If her wandering or
   her habits are a distraction, **Stand still** and **No idle animations** in Settings turn them
-  off.
+  off. While a full-screen app (a presentation, a video, a game) is in front on her screen, she
+  steps out of the way, and comes back once it's gone (**Hide in full-screen apps**, on to start
+  with).
 - **Drag it anywhere**, even onto another monitor: it dangles from the pointer. Let go and it drops
   onto that screen's taskbar, and from then on lives near the nearer bottom corner, walking back
   if it was dropped far away (and shrinking if she's too big for that screen). The panel opens
@@ -145,7 +151,11 @@ name are sent on to it.
     of it, in the company's colour, one of the swatches, or any hue from the slider; her trim and
     patterns stay as they are), **Stand still** (she stays where she is instead of
     wandering about), **No idle animations** (she stops doing her habits on her own), **No hat**
-    (she takes her hat off, in everything she does; all three are off to start with), Start with Windows, Send in Claude automatically, Open screenshots folder,
+    (she takes her hat off, in everything she does; all three are off to start with), **Hide in
+    full-screen apps** (she steps aside while one is in front on her screen; on to start with),
+    **Start with Windows** (on once installed; it shows whether Windows will really start her, even
+    if it was switched off in Windows' own Startup apps), Send in Claude automatically, Open
+    screenshots folder,
     Clear text box, **Check for updates** (downloads a newer release from GitHub, checks it's
     signed with the release key, and installs it; Desktop Wizard closes and starts again on the
     new version) and **Uninstall Desktop Wizard**. (With the

@@ -103,7 +103,7 @@ windows; the controller only sleeps and wakes.
 **Left alone.** While `collapsed`, the character has a life of its own. Every 8 to 20 seconds it
 walks somewhere else in its zone (the pose `walk-left` or `walk-right`, while the controller moves
 its window along the taskbar a frame at a time). Once nobody has done anything with it for 30
-seconds, more often than not it does one of its 38 habits instead (a hop, a wave, a stretch,
+seconds, more often than not it does one of its 41 habits instead (a hop, a wave, a stretch,
 a sip of tea, a vision, a curtsy, gazing into a crystal ball, reading its spellbook, a little
 spell, levitating over a magic circle, a sit on the taskbar, a twirl, a butterfly landing on its
 finger, a doze, a glance about, juggling, blowing bubbles, a will-o'-wisp going round it, a
@@ -2638,11 +2638,11 @@ they wait for a quiet spell rather than starting up while someone has just been 
 - `last?: Fidget`: the fidget it did last (`BubbleController.lastFidget`), or `undefined` if it
   hasn't done one yet. The `?` makes the parameter optional.
 - `FIDGETS.filter((fidget) => fidget !== last)`: every fidget but that one, so it never does the
-  same one twice in a row. With no `last`, all 38 are choices.
+  same one twice in a row. With no `last`, all 41 are choices.
 - `weights`: how likely each choice is, from `FIDGET_WEIGHT` (above): 1 for every fidget but the
   vision, which is 0.2, so it's rare.
 - `let roll = random() * ...`: a second roll, as a point along all the weights laid end to end
-  (`reduce()` adds them up): 37.2 long with all 38 habits as choices.
+  (`reduce()` adds them up): 40.2 long with all 41 habits as choices.
 - The loop walks along the choices, taking each one's weight off the roll; the first that takes it
   below 0 is the one the point fell in. So each fidget is picked in proportion to its weight: the
   vision about one time in 96 (0.2 of 19.2), each of the others about one in 19. `choices.entries()`
