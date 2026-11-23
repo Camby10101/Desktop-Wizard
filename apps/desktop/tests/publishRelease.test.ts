@@ -36,7 +36,7 @@ beforeAll(async () => {
 
 const PLAN: Plan = {
   version: '2.7.0',
-  tag: 'v2.7.0',
+  tag: '2.7.0',
   repo: 'owner/repo',
   publicKey: 'unused here',
   files: [
@@ -79,7 +79,7 @@ function fakeGitHub(release?: Partial<FakeRelease>) {
     const method = init.method ?? 'GET'
     const headers = init.headers as Record<string, string>
     requests.push({ method, url, headers, body: init.body })
-    if (method === 'GET' && url.endsWith('/releases/tags/v2.7.0')) {
+    if (method === 'GET' && url.endsWith('/releases/tags/2.7.0')) {
       return current ? json(200, current) : json(404, { message: 'Not Found' })
     }
     if (method === 'POST' && url.endsWith('/repos/owner/repo/releases')) {
@@ -136,7 +136,7 @@ describe('npm run release', () => {
     expect(await run(github)).toBe('https://x/r')
     const create = github.requests.find((r) => r.method === 'POST' && r.url.includes('api.github'))!
     expect(JSON.parse(String(create.body))).toMatchObject({
-      tag_name: 'v2.7.0',
+      tag_name: '2.7.0',
       target_commitish: 'main',
       name: 'Desktop Wizard 2.7.0',
       draft: false,
@@ -242,7 +242,7 @@ describe('what it releases', () => {
     const plan = script.releasePlan(root, 't')
     expect(plan).toMatchObject({
       version: '2.7.0',
-      tag: 'v2.7.0',
+      tag: '2.7.0',
       repo: 'owner/repo',
       publicKey: 'KEY',
     })
