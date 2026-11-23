@@ -53,6 +53,7 @@ export function SettingsMenu(props: {
   onToggleAutoStart: () => void
   onSetEffort: (effort: Effort) => void
   onToggleAutoSend: () => void
+  onToggleHideInFullScreen: () => void
   onSignOut: () => void
   onOpenScreenshotsFolder: () => void
   onNewConversation: () => void
@@ -131,6 +132,16 @@ export function SettingsMenu(props: {
         hint={settings.noHat ? 'Her hat’s off' : 'She wears her hat'}
         on={settings.noHat}
         onToggle={() => props.onSetHabits({ noHat: !settings.noHat })}
+      />
+      <ToggleRow
+        label="Hide in full-screen apps"
+        hint={
+          settings.hideInFullScreen
+            ? 'She steps aside for presentations, videos and games'
+            : 'She stays on top of everything'
+        }
+        on={settings.hideInFullScreen}
+        onToggle={props.onToggleHideInFullScreen}
       />
 
       <div className="my-1 border-t border-black/10 dark:border-white/10" />

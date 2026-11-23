@@ -164,6 +164,19 @@
   fill: #1f2d3d;
 }
 
+/* Fireflies: a warm yellow-green glow, and dimmed. */
+.px-firefly {
+  fill: #f4ff9a;
+}
+.px-firefly-dim {
+  fill: #a6c447;
+}
+
+/* The owl's pale face. */
+.px-owl-face {
+  fill: #f1e0bd;
+}
+
 /* Her shadow on the taskbar, in the accent colour while the panel is open. */
 .px-shadow {
   fill: rgb(0 0 0 / 0.22);

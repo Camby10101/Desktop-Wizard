@@ -5,6 +5,33 @@ import type { Scene } from './kit'
 import { SPARKLE, TWINKLE, stage } from './kit'
 import { type Point, type Canvas } from '../raster'
 
+/**
+ * Her kite (Pose.kite): it appears in her hand, climbs into the sky on its string, flies (swooping),
+ * is reeled back in, and goes (shares of the habit); where it flies: across from the middle of her
+ * (pixels; it swoops `swoop` either side) and at which row of the frame.
+ */
+export const KITE = {
+  appear: [0.03, 0.12],
+  rise: [0.12, 0.32],
+  fly: [0.32, 0.78],
+  reel: [0.78, 0.9],
+  gone: [0.9, 0.98],
+  across: 30,
+  swoop: 4,
+  sky: 3,
+} as const
+
+/** Her kite, a diamond: red edges, pink panels and a gold cross of spars. */
+export const KITE_PICTURE = [
+  '...m...',
+  '..mcm..',
+  '.mcYcm.',
+  'mYYYYYm',
+  '.mcYcm.',
+  '..mcm..',
+  '...m...',
+]
+
 /** Her yo-yo, spinning (two turns, a frame each): pink, a gold band, a white glint. */
 export const YOYO_SPIN = [
   ['.cc.', 'cYwc', 'cwYc', '.cc.'],
@@ -249,6 +276,62 @@ export function paintPlane({ pose, set, hand, onBody, canvas }: Scene): void {
     poof(held, appear)
     poof(held, gone)
   }
+}
+
+/**
+ * Her kite: it appears in her near hand in a sparkle, climbs into the sky on its silver string,
+ * swoops and dips there in a lazy figure of eight with its tail of bows streaming, and is reeled
+ * back down to her hand; then gone.
+ */
+export function paintKite({ pose, canvas, set, hand, hips }: Scene): void {
+  const { poof, shows } = toyKit(canvas)
+  const kite = pose.kite ?? 0
+  if (kite <= 0 || kite >= 1) return
+  const held = { x: hand.x, y: hand.y - 4 }
+  // Out to her side, clear of the frame's edge however far her hand reaches.
+  const sky = { x: hips.x + KITE.across, y: KITE.sky }
+  const ease = (v: number) => v * v * (3 - 2 * v)
+  const flying = kite >= KITE.fly[0] && kite < KITE.fly[1]
+  const fly = stage(kite, ...KITE.fly)
+  // How far up it is: climbing, up, or reeled back in.
+  const out =
+    kite < KITE.fly[0]
+      ? ease(stage(kite, ...KITE.rise))
+      : kite < KITE.reel[0]
+        ? 1
+        : 1 - ease(stage(kite, ...KITE.reel))
+  const swoop = flying ? Math.sin(fly * Math.PI * 4) : 0
+  const at = {
+    x: held.x + (sky.x - held.x) * out + swoop * KITE.swoop,
+    y: held.y + (sky.y - held.y) * out + (flying ? Math.sin(fly * Math.PI * 8) * 2.5 : 0),
+  }
+  const appear = stage(kite, ...KITE.appear)
+  const gone = stage(kite, ...KITE.gone)
+  if (shows(appear, gone)) {
+    if (out > 0.05) {
+      // The string, sagging a little, from her hand to the kite's bottom point, behind anything.
+      const end = { x: at.x, y: at.y + 3 }
+      const steps = Math.ceil(Math.hypot(end.x - hand.x, end.y - hand.y))
+      for (let i = 1; i < steps; i++) {
+        const t = i / steps
+        const sag = 3 * 4 * t * (1 - t) * out
+        set({ x: hand.x + (end.x - hand.x) * t, y: hand.y + (end.y - hand.y) * t + sag }, 'f', '.')
+      }
+    }
+    canvas.stamp(KITE_PICTURE, at.x - 3, at.y - 3)
+    // Its tail: three bows trailing below it, streaming one way and the other as it swoops.
+    for (let k = 1; k <= 3; k++) {
+      const bow = {
+        x: at.x - swoop * k * 1.5 + Math.sin(kite * 40 + k) * out,
+        y: at.y + 3 + k * 2.5,
+      }
+      set({ x: bow.x, y: bow.y - 1 }, 'f', '.')
+      set({ x: bow.x - 1, y: bow.y }, k % 2 ? 'G' : 'Y')
+      set({ x: bow.x + 1, y: bow.y }, k % 2 ? 'G' : 'Y')
+    }
+  }
+  poof(held, appear)
+  poof(at, gone)
 }
 
 /**

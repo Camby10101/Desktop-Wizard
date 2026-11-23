@@ -241,7 +241,13 @@ export class BubbleController {
   private snoozeTimer: ReturnType<typeof setTimeout> | null = null
   private idleWatch: ReturnType<typeof setInterval> | null = null
   /** She's away while the screen saver is on (sleep): hidden, doing nothing, until wake(). */
-  private asleep = false
+  private sleeping = false
+  /** She's out of the way of a full-screen app in front on her screen (fullScreen()). */
+  private hiddenForFullScreen = false
+  /** Away for either: hidden, doing nothing, until both are over. */
+  private get asleep(): boolean {
+    return this.sleeping || this.hiddenForFullScreen
+  }
   private sleepTimer: ReturnType<typeof setTimeout> | null = null
   private readonly now: () => number
   private readonly random: () => number
@@ -568,12 +574,14 @@ export class BubbleController {
    * whiten (her `vanish` pose), then her window hides. She does nothing more until wake().
    */
   sleep(): void {
-    if (this.leaving || this.asleep) return
+    if (this.leaving || this.sleeping) return
     this.collapse()
-    this.asleep = true
+    this.sleeping = true
     this.stopIdling()
     this.stopTicker()
     this.walking = false
+    // Out of the way of a full-screen app, she's hidden already.
+    if (this.hiddenForFullScreen) return
     this.setPose('vanish')
     this.sleepTimer = setTimeout(() => {
       this.sleepTimer = null
@@ -583,10 +591,40 @@ export class BubbleController {
 
   /** The screen saver's over: her window shows again, she forms out of white motes, and carries on. */
   wake(): void {
-    if (!this.asleep) return
-    this.asleep = false
+    if (!this.sleeping) return
+    this.sleeping = false
     if (this.sleepTimer) clearTimeout(this.sleepTimer)
     this.sleepTimer = null
+    // Still out of the way of a full-screen app: she comes back once it's gone.
+    if (this.hiddenForFullScreen) return
+    this.comeBack()
+  }
+
+  /**
+   * Whether a full-screen app (a presentation, a video, a game) is in front on her screen, asked
+   * every couple of seconds (fullScreen.ts). While one is, she hides at once (no vanishing over a
+   * slideshow), doing nothing; once it's gone, she forms out of white motes and carries on. Only
+   * while she's standing about with the panel shut: carried, falling or with the panel open, she's
+   * left be (and asked again next time).
+   */
+  fullScreen(on: boolean): void {
+    if (on === this.hiddenForFullScreen) return
+    if (on && (this.leaving || this.mode !== 'collapsed')) return
+    this.hiddenForFullScreen = on
+    // The screen saver has her: it hid her, and its end brings her back (if this is over by then).
+    if (this.sleeping) return
+    if (on) {
+      this.stopIdling()
+      this.stopTicker()
+      this.walking = false
+      this.deps.bubble.hide()
+    } else {
+      this.comeBack()
+    }
+  }
+
+  /** Back from being away: her window shows again, she forms out of white motes, and carries on. */
+  private comeBack(): void {
     this.position = this.rest()
     this.placeWindows()
     this.deps.bubble.show()

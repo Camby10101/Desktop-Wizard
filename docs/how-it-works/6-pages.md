@@ -170,9 +170,9 @@ of palette letters (outline, shade, base, light), and `ink()` shades the side aw
 
 #### Her toys
 
-Five of her habits summon a toy into her hand in a sparkle and send it away in a twinkle: a yo-yo
-(`yoyo`), a spinning top (`spinTop`), a deck of cards (`deck`), a paper plane (`plane`) and a bouncy
-ball (`ball`), each a `Pose` field from 0 to 1 through the habit. Each is drawn by a painter in
+Six of her habits summon a toy into her hand in a sparkle and send it away in a twinkle: a yo-yo
+(`yoyo`), a spinning top (`spinTop`), a deck of cards (`deck`), a paper plane (`plane`), a bouncy
+ball (`ball`) and a kite on a string (`kite`), each a `Pose` field from 0 to 1 through the habit. Each is drawn by a painter in
 `props/toys.ts`, beside its picture and its timetable (`YOYO`, `SPIN_TOP`, `DECK`, `PLANE`, `BALL`:
 when it appears, what it does, when it goes), which the habit's move in `moves/toys.ts` reads too, so her hand moves with the toy: a flick as each yo-yo drop
 starts, a push as the ball leaves her hand. Most are held out to her side, against the background
@@ -183,7 +183,11 @@ behind her.
 The `spirit` habit works the same way with a visitor instead of a toy: a little spirit (a round
 mint body, dark dot eyes, pale leaf wings beating in two frames) appears beside her, flies to her
 and lands on her palm (hearts), loops round her head (behind her on the far side), hovers while
-they wave to each other, and fades (`props/visitors.ts`, its timetable `SPIRIT`). In her battle,
+they wave to each other, and fades (`props/visitors.ts`, its timetable `SPIRIT`). The `owl` habit is
+another visit: a little owl flies in and lands on her outstretched hand, blinks, turns its eyes to her
+and hoots, and flies off above her hat (`OWL`). In `fireflies`, a charm, fireflies circle her, behind
+her and in front, glowing and dimming each in its own time, and one rests in her cupped hands
+(`FIREFLIES`, in `props/charms.ts`). In her battle,
 `charge` is a glow in her hand: a glint, a ball, and a sparkle as each bolt leaves it.
 
 Every painter is handed a `Scene` once she's drawn: where her hands, head and hips are, and how to

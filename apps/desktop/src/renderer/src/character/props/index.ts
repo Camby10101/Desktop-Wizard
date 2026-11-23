@@ -5,7 +5,14 @@
 
 import type { Paint } from './kit'
 import { paintDizzy, paintDust, paintTrail } from './basics'
-import { paintBubbles, paintButterfly, paintJuggle, paintSpell, paintWisp } from './charms'
+import {
+  paintBubbles,
+  paintButterfly,
+  paintFireflies,
+  paintJuggle,
+  paintSpell,
+  paintWisp,
+} from './charms'
 import { paintConfetti, paintSneeze, paintZzz } from './everyday'
 import {
   paintBloom,
@@ -21,8 +28,8 @@ import {
 } from './magic'
 import { paintCharge } from './performances'
 import { paintHearts, paintScroll, paintSweat } from './reactions'
-import { paintBall, paintDeck, paintPlane, paintSpinTop, paintYoyo } from './toys'
-import { paintSpirit } from './visitors'
+import { paintBall, paintDeck, paintKite, paintPlane, paintSpinTop, paintYoyo } from './toys'
+import { paintOwl, paintSpirit } from './visitors'
 
 export const PROPS: readonly Paint[] = [
   paintButterfly,
@@ -33,10 +40,13 @@ export const PROPS: readonly Paint[] = [
   paintDeck,
   paintPlane,
   paintBall,
+  paintKite,
   paintCharge,
   paintSpirit,
+  paintOwl,
   paintBubbles,
   paintWisp,
+  paintFireflies,
   paintSneeze,
   paintTrail,
   paintSpell,

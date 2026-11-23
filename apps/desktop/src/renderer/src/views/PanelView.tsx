@@ -573,6 +573,11 @@ function Panel({ state }: { state: AppState }) {
           }
           onSetEffort={(effort) => void setEffort(effort)}
           onToggleAutoSend={() => void toggleAutoSend()}
+          onToggleHideInFullScreen={async () =>
+            setSettings(
+              await window.assist.settings.setHideInFullScreen(!settings.hideInFullScreen),
+            )
+          }
           onSignOut={() => void signOut()}
           onOpenScreenshotsFolder={() => void window.assist.screenshots.openFolder()}
           onNewConversation={() => void newConversation()}

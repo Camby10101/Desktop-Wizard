@@ -192,6 +192,14 @@ neither knows nor cares whether that's juggling icons or waving through a portal
 
 - **`sleep()`** and **`wake()`**: the screen saver. She dissolves into white motes (`vanish`), her
   window hides, and nothing can open the panel or pick her up; on waking she forms again (`appear`).
+- **`fullScreen(on)`**: Settings → Hide in full-screen apps. Every two seconds `FullScreenWatch`
+  (`fullScreen.ts`) asks the shell probe which window is in front (`foreground`): one filling its
+  whole monitor, taskbar and all, without a title bar, or one Windows says is a full-screen game or
+  presentation, on her screen, is a full-screen app (never the desktop, the taskbar, or the Start
+  menu and the shell's other overlays, which fill the screen too). While one is, she hides at once,
+  with no vanishing over a slideshow; once it's gone, she forms again. Only with the panel shut and
+  her standing about: carried or with the panel open, she's asked again next time. The screen saver
+  and a full-screen app each keep her hidden until both are over.
 - **`teleport()`**: her spell. She vanishes, her window moves elsewhere near her corner, she appears.
 - **`farewell(done)`**: closing the app. She vanishes where she stands, then `done()` quits.
 - **`whileHidden(task)`**: a screenshot. Mode `capturing`: both windows hide, Windows is given a

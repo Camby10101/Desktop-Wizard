@@ -537,7 +537,7 @@ timetable of one of her habits, and `CLONES` the numbers for her clones, which b
 
 <!-- code: apps/desktop/src/shared/character.ts#HabitKind,Habit,HABIT_LIST,Fidget,HABITS,FIDGETS,Pose,FIDGET_MS,isFidget -->
 
-[`src/shared/character.ts`, lines 6–307](../../apps/desktop/src/shared/character.ts#L6-L307)
+[`src/shared/character.ts`, lines 6–322](../../apps/desktop/src/shared/character.ts#L6-L322)
 
 ```ts
 /**
@@ -664,6 +664,21 @@ const HABIT_LIST = {
    */
   spirit: { ms: 6400, kind: 'visitor' },
   /** A big yawn behind her hand, then a sleepy sway (late at night only: see TIMED). */
+  /**
+   * A kite appears in her hand in a sparkle; she flies it on its string, swooping and dipping, a
+   * tug now and then, and reels it back in.
+   */
+  kite: { ms: 5200, kind: 'toy' },
+  /**
+   * Fireflies gather round her, glowing and dimming as they circle; one rests in her cupped hands a
+   * moment, and they drift away.
+   */
+  fireflies: { ms: 5600, kind: 'charm' },
+  /**
+   * A little owl flies in and lands on her outstretched hand; it blinks, turns to look at her and
+   * hoots, and flies off over her head as she waves.
+   */
+  owl: { ms: 6000, kind: 'visitor' },
   yawn: { ms: 3600, kind: 'everyday' },
   /** A cheer and a burst of confetti (Friday evenings only, and often then: see TIMED). */
   confetti: { ms: 3200, kind: 'everyday' },
@@ -716,10 +731,10 @@ export const isFidget = (pose: Pose): pose is Fidget =>
   likely (`weight`, 1 if left out). The kind says where it's made: its move in
   `character/moves/` (`everyday.ts`, `charms.ts`, `magic.ts`, `toys.ts` or `visitors.ts`) and
   anything it draws round her in the same-named file in `character/props/`.
-- `HABIT_LIST`: the 38 things she does now and then once she's been left alone a while, one entry
+- `HABIT_LIST`: the 41 things she does now and then once she's been left alone a while, one entry
   each, its name the key, each described in the comment above it. Ten are magic (`flame`, `frost`,
-  `bloom`, `sigil`, `rainbow`, `hat`, `star`, `rain`, `potion`, `tome`), five are toys she summons
-  (`yoyo`, `top`, `cards`, `plane`, `ball`), and one a visitor (`spirit`). `vision` is rarer than the
+  `bloom`, `sigil`, `rainbow`, `hat`, `star`, `rain`, `potion`, `tome`), six are toys she summons
+  (`yoyo`, `top`, `cards`, `plane`, `ball`, `kite`), and two visitors (`spirit`, `owl`). `vision` is rarer than the
   rest (`weight: 0.2`), and needs more than her own window: the light and the company's logo are
   drawn in a window of their own above her (see `VISION` below); everything else is drawn in her own
   window. `satisfies Record<string, Habit>` checks every entry is a `Habit` while keeping the
@@ -753,7 +768,7 @@ export const isFidget = (pose: Pose): pose is Fidget =>
 
 <!-- code: apps/desktop/src/shared/character.ts#SPELL_POSES,SpellPose,SPELL_POSE_MS,isSpellPose -->
 
-[`src/shared/character.ts`, lines 145–165](../../apps/desktop/src/shared/character.ts#L145-L165)
+[`src/shared/character.ts`, lines 160–180](../../apps/desktop/src/shared/character.ts#L160-L180)
 
 ```ts
 /**
@@ -807,7 +822,7 @@ the main process plays them on purpose (`BubbleController.act()` and `teleport()
 
 <!-- code: apps/desktop/src/shared/character.ts#VISION -->
 
-[`src/shared/character.ts`, lines 309–320](../../apps/desktop/src/shared/character.ts#L309-L320)
+[`src/shared/character.ts`, lines 324–335](../../apps/desktop/src/shared/character.ts#L324-L335)
 
 ```ts
 /**
@@ -846,7 +861,7 @@ pages. Each entry is a `[from, to]` pair:
 
 <!-- code: apps/desktop/src/shared/character.ts#CLONES -->
 
-[`src/shared/character.ts`, lines 335–339](../../apps/desktop/src/shared/character.ts#L335-L339)
+[`src/shared/character.ts`, lines 350–354](../../apps/desktop/src/shared/character.ts#L350-L354)
 
 ```ts
 /**
@@ -1442,7 +1457,7 @@ survives a restart.
 
 <!-- code: apps/desktop/src/shared/types.ts#Effort,Settings,Habits,Theme -->
 
-[`src/shared/types.ts`, lines 30–63](../../apps/desktop/src/shared/types.ts#L30-L63)
+[`src/shared/types.ts`, lines 30–68](../../apps/desktop/src/shared/types.ts#L30-L68)
 
 ```ts
 /** How hard Claude thinks before answering (the API's `effort`), shown as Fast/Balanced/Thorough. */
@@ -1466,6 +1481,11 @@ export interface Settings {
   standStill: boolean
   /** She doesn't do her idle animations, her habits, on her own (off until turned on). */
   noIdles: boolean
+  /**
+   * She steps out of the way while a full-screen app (a presentation, a video, a game) is in front
+   * on her screen (on until turned off).
+   */
+  hideInFullScreen: boolean
   /** Her hat's off, in everything she does (off until turned on: she wears it). */
   noHat: boolean
   /** Her robe's colour (`#rrggbb`; her hat is a darker shade of it), or null for the company's. */
@@ -1519,7 +1539,7 @@ Thorough. `Settings` is what the settings menu shows; `SettingsService.get()` in
 
 <!-- code: apps/desktop/src/shared/types.ts#ChatApp -->
 
-[`src/shared/types.ts`, lines 65–69](../../apps/desktop/src/shared/types.ts#L65-L69)
+[`src/shared/types.ts`, lines 70–74](../../apps/desktop/src/shared/types.ts#L70-L74)
 
 ```ts
 /**
@@ -1545,7 +1565,7 @@ Where questions are answered, set per tenant (`chatApp` in `tenant.json`, checke
 
 <!-- code: apps/desktop/src/shared/types.ts#Branding,RequestType,StartPage -->
 
-[`src/shared/types.ts`, lines 71–99](../../apps/desktop/src/shared/types.ts#L71-L99)
+[`src/shared/types.ts`, lines 76–104](../../apps/desktop/src/shared/types.ts#L76-L104)
 
 ```ts
 export interface Branding {
@@ -1604,7 +1624,7 @@ also be the Jira page or the service desk page (`View` in `PanelView.tsx`).
 
 <!-- code: apps/desktop/src/shared/types.ts#SignedInUser,AuthStatus -->
 
-[`src/shared/types.ts`, lines 101–120](../../apps/desktop/src/shared/types.ts#L101-L120)
+[`src/shared/types.ts`, lines 106–125](../../apps/desktop/src/shared/types.ts#L106-L125)
 
 ```ts
 export interface SignedInUser {
@@ -1653,7 +1673,7 @@ token ever reaches them. With Claude Desktop there is no `AuthManager` and no st
 
 <!-- code: apps/desktop/src/shared/types.ts#ChatMessage,SendResult -->
 
-[`src/shared/types.ts`, lines 122–138](../../apps/desktop/src/shared/types.ts#L122-L138)
+[`src/shared/types.ts`, lines 127–143](../../apps/desktop/src/shared/types.ts#L127-L143)
 
 ```ts
 /** One message as the chat shows it. */
@@ -1700,7 +1720,7 @@ draft, which the panel shows. The reply itself arrives later, through `onChatMes
 
 <!-- code: apps/desktop/src/shared/types.ts#AskResult -->
 
-[`src/shared/types.ts`, lines 140–146](../../apps/desktop/src/shared/types.ts#L140-L146)
+[`src/shared/types.ts`, lines 145–151](../../apps/desktop/src/shared/types.ts#L145-L151)
 
 ```ts
 /**
@@ -1735,7 +1755,7 @@ Claude Desktop has opened with the question filled in. The failures come from
 
 <!-- code: apps/desktop/src/shared/types.ts#AppState -->
 
-[`src/shared/types.ts`, lines 148–163](../../apps/desktop/src/shared/types.ts#L148-L163)
+[`src/shared/types.ts`, lines 153–168](../../apps/desktop/src/shared/types.ts#L153-L168)
 
 ```ts
 export interface AppState {
@@ -1785,7 +1805,7 @@ asks with `atlassian.get()` and `atlassian.feed()`, and keeps up through `onAtla
 
 <!-- code: apps/desktop/src/shared/types.ts#PortalApp,AppsState -->
 
-[`src/shared/types.ts`, lines 165–184](../../apps/desktop/src/shared/types.ts#L165-L184)
+[`src/shared/types.ts`, lines 170–189](../../apps/desktop/src/shared/types.ts#L170-L189)
 
 ```ts
 /** One app from the user's JumpCloud User Portal, as the Apps list shows it. */
@@ -1832,7 +1852,7 @@ sets the state and broadcasts every change on `assist:apps-state`.
 
 <!-- code: apps/desktop/src/shared/types.ts#UninstallResult -->
 
-[`src/shared/types.ts`, lines 186–188](../../apps/desktop/src/shared/types.ts#L186-L188)
+[`src/shared/types.ts`, lines 191–193](../../apps/desktop/src/shared/types.ts#L191-L193)
 
 ```ts
 /** Settings → Uninstall. On success the app is already quitting. */
@@ -1854,7 +1874,7 @@ quitting, so the page has nothing more to do.
 
 <!-- code: apps/desktop/src/shared/types.ts#AtlassianState -->
 
-[`src/shared/types.ts`, lines 190–200](../../apps/desktop/src/shared/types.ts#L190-L200)
+[`src/shared/types.ts`, lines 195–205](../../apps/desktop/src/shared/types.ts#L195-L205)
 
 ```ts
 /**
@@ -1887,7 +1907,7 @@ The connection to Atlassian, as the comment says, which `Atlassian` in
 
 <!-- code: apps/desktop/src/shared/types.ts#StatusCategory,IssueStatus,JiraNotification,ServiceRequest -->
 
-[`src/shared/types.ts`, lines 202–236](../../apps/desktop/src/shared/types.ts#L202-L236)
+[`src/shared/types.ts`, lines 207–241](../../apps/desktop/src/shared/types.ts#L207-L241)
 
 ```ts
 /** How far along an issue is, by its status's category in Jira (which sets its colour). */
@@ -1941,7 +1961,7 @@ export interface ServiceRequest {
 
 <!-- code: apps/desktop/src/shared/types.ts#FeedList,JiraFeed -->
 
-[`src/shared/types.ts`, lines 238–249](../../apps/desktop/src/shared/types.ts#L238-L249)
+[`src/shared/types.ts`, lines 243–254](../../apps/desktop/src/shared/types.ts#L243-L254)
 
 ```ts
 /** A list the main process keeps up to date in the background. */
@@ -1970,7 +1990,7 @@ export interface JiraFeed {
 
 <!-- code: apps/desktop/src/shared/types.ts#IssueSummary,ConfluencePage,SearchResult -->
 
-[`src/shared/types.ts`, lines 251–271](../../apps/desktop/src/shared/types.ts#L251-L271)
+[`src/shared/types.ts`, lines 256–276](../../apps/desktop/src/shared/types.ts#L256-L276)
 
 ```ts
 /** An issue in a list of search results. */
@@ -2006,7 +2026,7 @@ What the Search tab shows: Jira issues (`IssueSummary`, with the issue's address
 
 <!-- code: apps/desktop/src/shared/types.ts#IssueComment,IssueTransition,IssueDetail,IssueResult -->
 
-[`src/shared/types.ts`, lines 273–304](../../apps/desktop/src/shared/types.ts#L273-L304)
+[`src/shared/types.ts`, lines 278–309](../../apps/desktop/src/shared/types.ts#L278-L309)
 
 ```ts
 export interface IssueComment {
@@ -2061,7 +2081,7 @@ What the issue view shows.
 
 <!-- code: apps/desktop/src/shared/types.ts#IssuePrompt,AskAboutIssueResult -->
 
-[`src/shared/types.ts`, lines 306–310](../../apps/desktop/src/shared/types.ts#L306-L310)
+[`src/shared/types.ts`, lines 311–315](../../apps/desktop/src/shared/types.ts#L311-L315)
 
 ```ts
 /** What to ask Claude about an issue. */
@@ -2081,7 +2101,7 @@ export type AskAboutIssueResult = { ok: true; inChat: boolean } | { ok: false; m
 
 <!-- code: apps/desktop/src/shared/types.ts#NewRequest,RaiseResult -->
 
-[`src/shared/types.ts`, lines 312–326](../../apps/desktop/src/shared/types.ts#L312-L326)
+[`src/shared/types.ts`, lines 317–331](../../apps/desktop/src/shared/types.ts#L317-L331)
 
 ```ts
 /**
@@ -2117,7 +2137,7 @@ The service desk page's form, and the answer to sending it (see `ServiceDesk.rai
 
 <!-- code: apps/desktop/src/shared/types.ts#UpdateState -->
 
-[`src/shared/types.ts`, lines 328–340](../../apps/desktop/src/shared/types.ts#L328-L340)
+[`src/shared/types.ts`, lines 333–345](../../apps/desktop/src/shared/types.ts#L333-L345)
 
 ```ts
 /**
@@ -2155,7 +2175,7 @@ it.
 
 <!-- code: apps/desktop/src/shared/types.ts#ActionResult,AttachResult -->
 
-[`src/shared/types.ts`, lines 342–349](../../apps/desktop/src/shared/types.ts#L342-L349)
+[`src/shared/types.ts`, lines 347–354](../../apps/desktop/src/shared/types.ts#L347-L354)
 
 ```ts
 export type ActionResult = { ok: true; message?: string } | { ok: false; message: string }
@@ -2203,7 +2223,7 @@ Messages come in three styles:
 
 <!-- code: apps/desktop/src/shared/ipc.ts#IPC -->
 
-[`src/shared/ipc.ts`, lines 33–124](../../apps/desktop/src/shared/ipc.ts#L33-L124)
+[`src/shared/ipc.ts`, lines 33–125](../../apps/desktop/src/shared/ipc.ts#L33-L125)
 
 ```ts
 /** IPC channel names. The preload maps them onto `window.assist`; src/main/ipc.ts handles them. */
@@ -2232,6 +2252,7 @@ export const IPC = {
   settingsSetAutoStart: 'assist:settings-set-auto-start',
   settingsSetEffort: 'assist:settings-set-effort',
   settingsSetAutoSend: 'assist:settings-set-auto-send',
+  settingsSetHideInFullScreen: 'assist:settings-set-hide-in-full-screen',
   settingsSetFavoriteApp: 'assist:settings-set-favorite-app',
   settingsSetTheme: 'assist:settings-set-theme',
   settingsSetHabits: 'assist:settings-set-habits',
@@ -2347,7 +2368,7 @@ name: a typo is a compile error instead of a message nobody hears.
 
 <!-- code: apps/desktop/src/shared/ipc.ts#AssistApi -->
 
-[`src/shared/ipc.ts`, lines 126–325](../../apps/desktop/src/shared/ipc.ts#L126-L325)
+[`src/shared/ipc.ts`, lines 127–327](../../apps/desktop/src/shared/ipc.ts#L127-L327)
 
 ```ts
 /** The API the preload exposes to renderers as `window.assist`. */
@@ -2394,6 +2415,7 @@ export interface AssistApi {
     setAutoStart(enabled: boolean): Promise<Settings>
     setEffort(effort: Effort): Promise<Settings>
     setAutoSend(autoSend: boolean): Promise<Settings>
+    setHideInFullScreen(hide: boolean): Promise<Settings>
     /** Stars an app in the Apps list (it moves to the top), or takes its star away. */
     setFavoriteApp(id: string, favorite: boolean): Promise<Settings>
     /** Light or dark mode for all of Desktop Wizard; saved. */
@@ -2896,7 +2918,7 @@ listening. Every `on...` method in `api` uses it.
 
 <!-- code: apps/desktop/src/preload/index.ts#api -->
 
-[`src/preload/index.ts`, lines 12–127](../../apps/desktop/src/preload/index.ts#L12-L127)
+[`src/preload/index.ts`, lines 12–128](../../apps/desktop/src/preload/index.ts#L12-L128)
 
 ```ts
 const api: AssistApi = {
@@ -2929,6 +2951,7 @@ const api: AssistApi = {
     setAutoStart: (enabled) => ipcRenderer.invoke(IPC.settingsSetAutoStart, enabled),
     setEffort: (effort) => ipcRenderer.invoke(IPC.settingsSetEffort, effort),
     setAutoSend: (autoSend) => ipcRenderer.invoke(IPC.settingsSetAutoSend, autoSend),
+    setHideInFullScreen: (hide) => ipcRenderer.invoke(IPC.settingsSetHideInFullScreen, hide),
     setTheme: (theme) => ipcRenderer.invoke(IPC.settingsSetTheme, theme),
     setHabits: (habits) => ipcRenderer.invoke(IPC.settingsSetHabits, habits),
     setRobeColor: (color) => ipcRenderer.invoke(IPC.settingsSetRobeColor, color),

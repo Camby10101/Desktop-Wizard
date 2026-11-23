@@ -2,7 +2,7 @@
 
 import { FIDGET_MS } from '@shared/character'
 import { type Arm, type Face } from '../rig'
-import { BALL, DECK, PLANE, SPIN_TOP, YOYO } from '../props/toys'
+import { BALL, DECK, KITE, PLANE, SPIN_TOP, YOYO } from '../props/toys'
 import {
   type Key,
   lerp,
@@ -144,6 +144,31 @@ export function ball(): Key[] {
   })
 }
 
+/**
+ * Her kite, from the front: she holds her hand out and a kite appears in it; she lets it climb on
+ * its string, her arm rising with it, and watches it swoop and dip (a tug now and then), smiling;
+ * reels it back in, and it vanishes.
+ */
+export function kite(): Key[] {
+  return through(FIDGET_MS.kite, (t) => {
+    const ready = between(t, 0, 0.08) * (1 - between(t, 0.92, 1))
+    const up = between(t, KITE.rise[0], KITE.rise[1]) * (1 - between(t, KITE.reel[0], KITE.reel[1]))
+    // A quick tug on the string, three times while it flies.
+    const tug = Math.max(0, Math.sin(span(t, KITE.fly) * Math.PI * 6)) ** 8 * 0.25
+    const holding = { shoulder: lerp(1.2, 2.1, up) - tug, elbow: lerp(-0.9, -0.2, up) }
+    const arm = toward(holding, ready)
+    const flying = t >= KITE.rise[0] && t < KITE.reel[1]
+    const face: Face = flying
+      ? t > 0.5
+        ? blinking(t, 0.62, 'happy')
+        : 'up'
+      : t >= KITE.reel[1]
+        ? 'happy'
+        : 'neutral'
+    return { view: 'front', kite: t, face, tilt: 0.06 * up, arms: [arm, ARM_DOWN] }
+  })
+}
+
 /** Her toys, by pose (each plays once, for its HABITS `ms`). */
 export const TOY_MOVES = {
   yoyo: once(yoyo),
@@ -151,4 +176,5 @@ export const TOY_MOVES = {
   cards: once(cards),
   plane: once(plane),
   ball: once(ball),
+  kite: once(kite),
 } satisfies Moves

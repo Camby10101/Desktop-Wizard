@@ -19,8 +19,11 @@ release
    `scripts/publish-installer.mjs` (a copy of both in `installer/`).
 3. **Commit and push**, with the new `installer/`, so the newest installer can be downloaded from the
    repository's main page.
-4. **Publish a GitHub release** tagged with the version, with the `.exe` and the `.exe.sig` attached.
-   From then on, every copy's Check for updates finds it (section 33).
+4. **Publish the GitHub release**: `npm run release` (`scripts/publish-release.mjs`), from `main`,
+   with a GitHub token in `GITHUB_TOKEN`. It checks the `.sig` is the release key's for this version
+   and installer, creates the release tagged `v<version>` on `main`, attaches the `.exe` and the
+   `.exe.sig`, and checks they're there. From then on, every copy's Check for updates finds it
+   (section 33).
 
 ## 37. electron-vite: building the app
 

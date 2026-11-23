@@ -109,6 +109,41 @@ Install it once yourself to check it.
 
 ## 3. Publish the release on GitHub
 
+Once the release is merged and pushed to `main` and `npm run dist` has built and signed it, from
+`main`:
+
+```powershell
+npm run release
+```
+
+It checks the installer in `installer/` is signed with the release key for this version, that this
+is `main` with nothing uncommitted and the same as `main` on GitHub, then creates the GitHub release
+tagged `v<version>` on `main` (titled `Desktop Wizard <version>`, its notes written by GitHub from
+the commits since the last release), attaches the installer and its signature, and checks both are
+there, the way copies look for them. Run again, it finishes whatever's left: a release already
+there is used (a draft or pre-release is published), a file already attached is left, and a wrong
+one is replaced. `scripts/publish-release.mjs` does it.
+
+- **It needs a GitHub token**, allowed to publish releases on the repository. Make a fine-grained
+  token at https://github.com/settings/personal-access-tokens/new, for only
+  `Camby10101/Desktop-Wizard`, with **Contents: Read and write**, and give it to the one PowerShell
+  window you release from (it isn't saved anywhere; close the window and it's gone):
+
+  ```powershell
+  $env:GITHUB_TOKEN = '<the token>'
+  ```
+
+  The script only ever sends it to GitHub, and never prints it. Without it, the script says how to
+  make one and stops. Give the token a short expiry, and keep it like a password.
+
+- `npm run release -- --dry-run` checks everything here and says what it would do, without asking
+  GitHub to change anything (or needing the token).
+- `npm run release -- --notes "What's new: …"` writes the release's notes yourself.
+
+### Publishing by hand
+
+The same, on GitHub's site, if the script can't be used:
+
 1. On GitHub, open the repository's **Releases** and choose **Draft a new release**.
 2. **Choose a tag**: type `v` and the version, e.g. `v2.0.1`, and choose **Create new tag on
    publish**, targeting `main`. The tag must be the version (with or without the `v`); a tag that

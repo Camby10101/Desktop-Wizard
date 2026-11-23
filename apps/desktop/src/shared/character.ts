@@ -127,6 +127,21 @@ const HABIT_LIST = {
    */
   spirit: { ms: 6400, kind: 'visitor' },
   /** A big yawn behind her hand, then a sleepy sway (late at night only: see TIMED). */
+  /**
+   * A kite appears in her hand in a sparkle; she flies it on its string, swooping and dipping, a
+   * tug now and then, and reels it back in.
+   */
+  kite: { ms: 5200, kind: 'toy' },
+  /**
+   * Fireflies gather round her, glowing and dimming as they circle; one rests in her cupped hands a
+   * moment, and they drift away.
+   */
+  fireflies: { ms: 5600, kind: 'charm' },
+  /**
+   * A little owl flies in and lands on her outstretched hand; it blinks, turns to look at her and
+   * hoots, and flies off over her head as she waves.
+   */
+  owl: { ms: 6000, kind: 'visitor' },
   yawn: { ms: 3600, kind: 'everyday' },
   /** A cheer and a burst of confetti (Friday evenings only, and often then: see TIMED). */
   confetti: { ms: 3200, kind: 'everyday' },

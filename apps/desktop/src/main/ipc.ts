@@ -66,6 +66,8 @@ export interface IpcContext {
   screenSaver: { wakeFrom(senderId: number): void }
   /** Settings → Uninstall. */
   uninstall(): UninstallResult
+  /** Stepping out of the way of full-screen apps, or null where it can't (not Windows). */
+  fullScreen: { set(on: boolean): void } | null
   /** Whether the mouse pointer is over her window (showing) now. */
   pointerOverBubble(): boolean
   getState(): AppState
@@ -181,6 +183,11 @@ export function registerIpc(ctx: IpcContext): void {
     ctx.settings.setEffort(effort),
   )
   handle(IPC.settingsSetAutoSend, z.boolean(), (autoSend) => ctx.settings.setAutoSend(autoSend))
+  handle(IPC.settingsSetHideInFullScreen, z.boolean(), async (hide) => {
+    const settings = await ctx.settings.setHideInFullScreen(hide)
+    ctx.fullScreen?.set(hide)
+    return settings
+  })
   handle(IPC.settingsSetTheme, z.enum(['dark', 'light']), (theme) => ctx.settings.setTheme(theme))
   handle(
     IPC.settingsSetHabits,

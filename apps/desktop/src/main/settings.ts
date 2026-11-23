@@ -2,6 +2,7 @@ import { app, nativeTheme } from 'electron'
 import { z } from 'zod'
 import type { Effort, Habits, Settings, Theme } from '@shared/types'
 import type { BubbleAnchor } from './bubble/BubbleController'
+import { startsAtSignIn } from './autoStart'
 import { adoptFormerLoginItem } from './formerName'
 import { readJsonFile, writeJsonFile } from './storage/jsonFile'
 
@@ -20,6 +21,8 @@ const PreferencesSchema = z.object({
   noIdles: z.boolean().optional(),
   /** Her hat off (Settings → No hat); she wears it unless this is on. */
   noHat: z.boolean().optional(),
+  /** She steps out of the way of full-screen apps (Settings); on unless turned off. */
+  hideInFullScreen: z.boolean().optional(),
   /** Her robe's colour, chosen in Settings; the company's colour unless one is. */
   robeColor: z
     .string()
@@ -73,8 +76,9 @@ export class SettingsService {
   get(): Settings {
     const available = app.isPackaged
     return {
-      // Read from Windows each time: the user can also change it in Settings > Apps > Startup.
-      autoStart: available && app.getLoginItemSettings().openAtLogin,
+      // Read from Windows each time: the user can also switch it off in Windows' Settings > Apps >
+      // Startup, which leaves the entry there but skips it (see startsAtSignIn).
+      autoStart: available && startsAtSignIn(app.getLoginItemSettings()),
       autoStartAvailable: available,
       screenshotsDir: this.screenshotsDir,
       effort: this.prefs.effort ?? DEFAULT_EFFORT,
@@ -84,13 +88,18 @@ export class SettingsService {
       standStill: this.prefs.standStill ?? false,
       noIdles: this.prefs.noIdles ?? false,
       noHat: this.prefs.noHat ?? false,
+      hideInFullScreen: this.prefs.hideInFullScreen ?? true,
       robeColor: this.prefs.robeColor ?? null,
       canUninstall: available,
     }
   }
 
+  /**
+   * Starts the app at sign-in or not. Turning it on also switches it back on in Windows' own Startup
+   * apps (`enabled`), in case it was switched off there.
+   */
   setAutoStart(enabled: boolean): Settings {
-    if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: enabled })
+    if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: enabled, enabled })
     return this.get()
   }
 
@@ -117,6 +126,12 @@ export class SettingsService {
   /** Whether she wanders about, does her idle animations, and wears her hat (any of them). */
   async setHabits(habits: Partial<Habits>): Promise<Settings> {
     await this.save(habits)
+    return this.get()
+  }
+
+  /** Whether she steps out of the way of full-screen apps. */
+  async setHideInFullScreen(hideInFullScreen: boolean): Promise<Settings> {
+    await this.save({ hideInFullScreen })
     return this.get()
   }
 

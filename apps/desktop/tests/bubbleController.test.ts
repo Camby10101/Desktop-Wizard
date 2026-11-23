@@ -247,7 +247,7 @@ describe('on its own', () => {
       'idle',
       'walk-right', // at 24 s, back to 50
       'idle',
-      'doze', // at 39 s: alone for 30 s now (the one the dice pick)
+      'look', // at 39 s: alone for 30 s now (the one the dice pick)
       'idle',
     ])
   })
@@ -259,18 +259,18 @@ describe('on its own', () => {
       'idle',
       'walk-right',
       'idle',
-      'doze',
+      'look',
       'idle',
-      'butterfly', // anything but the doze again
+      'juggle', // anything but the look again
       'idle',
     ])
   })
 
   it('plays a fidget for as long as its animation lasts, standing still', () => {
-    advanceUntil(() => controller.currentPose === 'butterfly')
+    advanceUntil(() => controller.currentPose === 'look')
     const where = bubble.bounds
-    vi.advanceTimersByTime(FIDGET_MS.butterfly - 100)
-    expect(controller.currentPose).toBe('butterfly')
+    vi.advanceTimersByTime(FIDGET_MS.look - 100)
+    expect(controller.currentPose).toBe('look')
     expect(bubble.bounds).toEqual(where)
     vi.advanceTimersByTime(200)
     expect(controller.currentPose).toBe('idle')
@@ -300,10 +300,10 @@ describe('on its own', () => {
   })
 
   it('stops a fidget when dragged, and dangles instead', () => {
-    advanceUntil(() => controller.currentPose === 'butterfly')
+    advanceUntil(() => controller.currentPose === 'look')
     controller.startDrag()
     expect(controller.currentPose).toBe('dragged')
-    holdFor(FIDGET_MS.butterfly + 100)
+    holdFor(FIDGET_MS.look + 100)
     expect(controller.currentPose).toBe('dragged') // the fidget's end doesn't interrupt
     controller.endDrag()
   })
@@ -321,7 +321,7 @@ describe('as Settings say', () => {
     startWith({ standStill: true, noIdles: false, noHat: false })
     vi.advanceTimersByTime(46_000)
     // Resting at 8.5 s and 22.5 s; alone for 30 s at 36.5 s.
-    expect(poses).toEqual(['doze', 'idle'])
+    expect(poses).toEqual(['look', 'idle'])
     expect(bubble.bounds).toEqual(home())
   })
 
@@ -412,6 +412,48 @@ describe('the screen saver', () => {
     controller.wake()
     vi.advanceTimersByTime(SPELL_POSE_MS.vanish)
     expect(bubble.visible).toBe(true)
+  })
+})
+
+describe('full-screen apps', () => {
+  it('steps out of the way at once, does nothing meanwhile, and forms out of motes once it’s gone', () => {
+    controller.fullScreen(true)
+    expect(bubble.visible).toBe(false) // at once: no vanishing over a slideshow
+    const before = poses.length
+    vi.advanceTimersByTime(120_000)
+    expect(poses.slice(before)).toEqual([])
+    controller.fullScreen(false)
+    expect(bubble.visible).toBe(true)
+    expect(bubble.bounds).toEqual(home())
+    expect(controller.currentPose).toBe('appear')
+  })
+
+  it('leaves her be while the panel is open (asked again later, she steps aside then)', () => {
+    controller.clickBubble()
+    controller.fullScreen(true)
+    expect(bubble.visible).toBe(true)
+    expect(controller.currentMode).toBe('expanded')
+    controller.clickBubble()
+    controller.fullScreen(true)
+    expect(bubble.visible).toBe(false)
+  })
+
+  it('stays gone until both the screen saver and the full-screen app are over', () => {
+    controller.fullScreen(true)
+    controller.sleep()
+    controller.fullScreen(false)
+    expect(bubble.visible).toBe(false) // the screen saver still has her
+    controller.wake()
+    expect(bubble.visible).toBe(true)
+    // The other way round.
+    controller.sleep()
+    vi.advanceTimersByTime(SPELL_POSE_MS.vanish + 10)
+    controller.fullScreen(true)
+    controller.wake()
+    expect(bubble.visible).toBe(false) // the app's still in front
+    controller.fullScreen(false)
+    expect(bubble.visible).toBe(true)
+    expect(controller.currentPose).toBe('appear')
   })
 })
 
@@ -1061,7 +1103,7 @@ describe('display changes', () => {
   })
 
   it('stops a fidget too, standing idle again', () => {
-    advanceUntil(() => controller.currentPose === 'butterfly')
+    advanceUntil(() => controller.currentPose === 'look')
     controller.displayChanged()
     expect(controller.currentPose).toBe('idle')
   })

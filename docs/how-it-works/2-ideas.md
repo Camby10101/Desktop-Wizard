@@ -70,7 +70,7 @@ Her habits go one step further: each is an entry in one table, its name the key 
 const HABIT_LIST = {
   /** A little jump. */
   hop: { ms: 1200, kind: 'everyday' },
-  // … 38 in all
+  // … 41 in all
 } satisfies Record<string, Habit>
 export type Fidget = keyof typeof HABIT_LIST // 'hop' | 'wave' | … | 'dance'
 ```
