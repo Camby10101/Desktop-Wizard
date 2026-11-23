@@ -96,7 +96,7 @@ If the key isn't on the PC, the build stops at signing and says so. The installe
 but copies won't take it as an update until it's signed; put the key in place and run
 `node scripts/release-signing.mjs sign`.
 
-Last, it copies the installer and its signature into `installer/` at the top of the repository
+Last, it copies the installer and its signature into `installer/windows/` at the top of the repository
 (`scripts/publish-installer.mjs`), removing the previous version's, so the newest can be
 downloaded from the repository's main page on GitHub: **commit `installer/`** with the release. GitHub
 won't take a file over 100 MB, so the installer is built with only English for Chromium's own words
@@ -116,7 +116,7 @@ Once the release is merged and pushed to `main` and `npm run dist` has built and
 npm run release
 ```
 
-It checks the installer in `installer/` is signed with the release key for this version, that this
+It checks the installer in `installer/windows/` is signed with the release key for this version, that this
 is `main` with nothing uncommitted and the same as `main` on GitHub, then creates the GitHub release
 tagged with the version (`2.0.1`, no `v`) on `main` (titled `Desktop Wizard <version>`, its notes written by GitHub from
 the commits since the last release), attaches the installer and its signature, and checks both are
@@ -139,6 +139,25 @@ one is replaced. `scripts/publish-release.mjs` does it.
 - `npm run release -- --dry-run` checks everything here and says what it would do, without asking
   GitHub to change anything (or needing the token).
 - `npm run release -- --notes "What's new: …"` writes the release's notes yourself.
+
+### The Mac build
+
+Publishing the release starts the **Mac build** on GitHub Actions (`.github/workflows/mac.yml`): on
+one of GitHub's Macs it runs `npm run dist:mac` for the release's tag and attaches
+`Desktop.Wizard-<version>-mac.dmg` (to install from) and `Desktop.Wizard-<version>-mac.zip` (what Mac
+copies update from) to the release. It takes about ten minutes; the repository's **Actions** tab
+shows how it's going, and can run it again by hand (**Mac build → Run workflow**, with the
+release's tag).
+
+Mac copies only install an update whose zip has the release key's signature, and the key never
+goes on GitHub, so the build can't sign it. **Once it has finished, run `npm run release` again**
+(with the token): it finds the Mac zip on the release, signs it here with the release key, and
+attaches `Desktop.Wizard-<version>-mac.zip.sig`. Run before the build has finished, it says so; if the
+build was run again (a new zip), it signs the new one.
+
+The Mac app is signed ad hoc, not by Apple (there's no Apple Developer ID), so macOS asks people to
+allow it the first time they open it (System Settings → Privacy & Security → Open Anyway); updates
+after that install themselves. See [MAC.md](MAC.md).
 
 ### Publishing by hand
 

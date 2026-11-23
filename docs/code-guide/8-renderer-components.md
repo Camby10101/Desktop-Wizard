@@ -1376,7 +1376,7 @@ const EFFORTS: { value: Effort; label: string; hint: string }[] = [
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#SettingsMenu -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 30–298](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L30-L298)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 30–294](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L30-L294)
 
 ```tsx
 /** The menu that opens beside the gear icon, on the side facing the middle of the screen. */
@@ -1633,11 +1633,7 @@ export function SettingsMenu(props: {
         >
           {confirmingUninstall ? 'Click again to uninstall' : `Uninstall ${branding.appName}`}
           {!settings.canUninstall && (
-            <span className="block text-[11px] text-zinc-500">
-              {features.uninstall
-                ? 'Only in the installed app'
-                : 'Drag it from Applications to the Bin'}
-            </span>
+            <span className="block text-[11px] text-zinc-500">Only in the installed app</span>
           )}
         </MenuItem>
       </div>
@@ -1772,7 +1768,7 @@ switches the "New conversation" (or "Clear text box") row into its "Click again"
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#UpdateItem -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 300–338](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L300-L338)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 296–334](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L296-L334)
 
 ```tsx
 /** Check for updates, showing how it's going: checking, downloading, installing, or the answer. */
@@ -1841,7 +1837,7 @@ whole job happens in the main process (`Updater` in `src/main/updates.ts`; see
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#MenuItem -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 340–369](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L340-L369)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 336–365](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L336-L365)
 
 ```tsx
 function MenuItem(props: {
@@ -1896,7 +1892,7 @@ One row of the menu: an icon and a label, as a button.
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#ToggleRow -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 371–388](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L371-L388)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 367–384](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L367-L384)
 
 ```tsx
 /** A setting that's on or off: its name, a line saying what it does now, and its switch. */
@@ -1939,7 +1935,7 @@ switches there would have been four copies of the same lines, which would only d
 
 <!-- code: apps/desktop/src/renderer/src/components/SettingsMenu.tsx#Switch -->
 
-[`src/renderer/src/components/SettingsMenu.tsx`, lines 390–407](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L390-L407)
+[`src/renderer/src/components/SettingsMenu.tsx`, lines 386–403](../../apps/desktop/src/renderer/src/components/SettingsMenu.tsx#L386-L403)
 
 ```tsx
 function Switch({ on }: { on: boolean }) {

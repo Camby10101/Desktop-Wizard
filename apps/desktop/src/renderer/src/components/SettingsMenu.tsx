@@ -281,11 +281,7 @@ export function SettingsMenu(props: {
         >
           {confirmingUninstall ? 'Click again to uninstall' : `Uninstall ${branding.appName}`}
           {!settings.canUninstall && (
-            <span className="block text-[11px] text-zinc-500">
-              {features.uninstall
-                ? 'Only in the installed app'
-                : 'Drag it from Applications to the Bin'}
-            </span>
+            <span className="block text-[11px] text-zinc-500">Only in the installed app</span>
           )}
         </MenuItem>
       </div>

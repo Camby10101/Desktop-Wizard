@@ -26,8 +26,6 @@ export interface OsFeatures {
   sendInClaude: boolean
   /** Settings → Check for updates: downloading and installing the new version. */
   updates: boolean
-  /** Settings → Uninstall. */
-  uninstall: boolean
 }
 
 export const OS_FEATURES = {
@@ -38,7 +36,6 @@ export const OS_FEATURES = {
     shellProbe: true,
     sendInClaude: true,
     updates: true,
-    uninstall: true,
   },
   mac: {
     name: 'macOS',
@@ -47,9 +44,7 @@ export const OS_FEATURES = {
     // Windows' UI Automation has no macOS counterpart here yet (docs/MAC.md).
     shellProbe: false,
     sendInClaude: false,
-    // The updater installs Windows' installer; on a Mac, new versions are downloaded by hand.
-    updates: false,
-    // An app is uninstalled on a Mac by dragging it from Applications to the Bin.
-    uninstall: false,
+    // Checked against the release key, as on Windows; no Apple Developer ID needed (macUpdate.ts).
+    updates: true,
   },
 } as const satisfies Record<OsName, OsFeatures>

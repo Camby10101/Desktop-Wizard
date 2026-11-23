@@ -13,6 +13,12 @@ import type { UpdateState } from '@shared/types'
  */
 export const INSTALLER_ARGS = ['--updated', '/S', '--force-run']
 
+/** A release's file for Windows: its installer, an `.exe` with "Setup" in its name. */
+export const WINDOWS_UPDATE = /setup.*\.exe$/i
+
+/** A release's file for a Mac: the app, zipped (`Desktop Wizard-<version>-mac.zip`). */
+export const MAC_UPDATE = /-mac\.zip$/i
+
 /** A version as numbers: "v1.2.3" is [1, 2, 3]. Null if it isn't one. */
 export function parseVersion(value: string): [number, number, number] | null {
   const match = /^v?(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/.exec(value.trim())
@@ -62,14 +68,19 @@ export function ownDownloads(htmlUrl: unknown, downloads: string): string | null
 }
 
 /**
- * The release in GitHub's answer for a repository's latest release, if it's a version with an
- * installer: an `.exe` with "Setup" in its name, downloaded from the repository's own releases:
+ * The release in GitHub's answer for a repository's latest release, if it's a version with this
+ * OS's file (`installer`: Windows' `Setup….exe` unless given), downloaded from the repository's own
+ * releases:
  * `downloads` (https://github.com/<owner>/<name>/releases/download/), or, if the repository has
  * since been renamed or moved (GitHub answers for it under the old name), wherever the release's
  * own page says it now is (ownDownloads). Its signature is the file of the same name plus `.sig`.
  * The installer only runs if that signature is the release key's, wherever it came from.
  */
-export function releaseOf(payload: unknown, downloads: string): Release | null {
+export function releaseOf(
+  payload: unknown,
+  downloads: string,
+  installer: RegExp = WINDOWS_UPDATE,
+): Release | null {
   if (!isObject(payload) || payload['draft'] === true || payload['prerelease'] === true) return null
   const version = parseVersion(typeof payload['tag_name'] === 'string' ? payload['tag_name'] : '')
   if (!version) return null
@@ -80,7 +91,7 @@ export function releaseOf(payload: unknown, downloads: string): Release | null {
     (a['browser_download_url'].startsWith(downloads) ||
       (moved !== null && a['browser_download_url'].startsWith(moved)))
   const asset = assets.find(
-    (a) => typeof a['name'] === 'string' && /setup.*\.exe$/i.test(a['name']) && fromRepo(a),
+    (a) => typeof a['name'] === 'string' && installer.test(a['name']) && fromRepo(a),
   )
   if (!asset) return null
   const digest = typeof asset['digest'] === 'string' ? asset['digest'] : ''
@@ -108,6 +119,7 @@ export function releaseOf(payload: unknown, downloads: string): Release | null {
 export function newestRelease(
   payload: unknown,
   downloads: string,
+  installer: RegExp = WINDOWS_UPDATE,
 ): { release: Release | null; unfinished: string | null } {
   let release: Release | null = null
   let unfinished: string | null = null
@@ -115,7 +127,7 @@ export function newestRelease(
     if (!isObject(item) || item['draft'] === true || item['prerelease'] === true) continue
     const version = parseVersion(typeof item['tag_name'] === 'string' ? item['tag_name'] : '')
     if (!version) continue
-    const found = releaseOf(item, downloads)
+    const found = releaseOf(item, downloads, installer)
     if (found) {
       if (!release || isNewer(found.version, release.version)) release = found
     } else if (!unfinished || isNewer(version.join('.'), unfinished)) {
@@ -171,6 +183,8 @@ export interface UpdaterDeps {
   releasesUrl: string
   /** Where the repository's release files are downloaded from; nothing else is downloaded. */
   downloads: string
+  /** Which of a release's files is this OS's: Windows' installer unless given (MAC_UPDATE). */
+  installer?: RegExp
   /**
    * The release key's public half (tenant.json `updates.publicKey`). An installer only runs if
    * its release has a signature made with the key's private half, which is kept off GitHub: someone
@@ -266,7 +280,7 @@ export class Updater {
     if (response.status === 404) return { release: null, unfinished: null }
     if (response.status === 403 || response.status === 429) throw new Busy()
     if (!response.ok) throw new Error(`GitHub answered ${response.status}`)
-    return newestRelease(await response.json(), this.deps.downloads)
+    return newestRelease(await response.json(), this.deps.downloads, this.deps.installer)
   }
 
   /**
@@ -353,17 +367,19 @@ export class Updater {
 }
 
 /**
- * Saves a downloaded installer in `dir` (emptied first, so old downloads don't pile up) and
- * returns its path. Only an `.exe`, and only the file's own name is used. If the download fails
- * part way (or turns out not to be the release's file), the partial file is deleted.
+ * Saves a downloaded update in `dir` (emptied first, so old downloads don't pile up) and returns
+ * its path. Only this OS's kind of file (`kind`: an `.exe` unless given), and only the file's own
+ * name is used. If the download fails part way (or turns out not to be the release's file), the
+ * partial file is deleted.
  */
 export async function saveDownload(
   dir: string,
   name: string,
   chunks: AsyncIterable<Uint8Array>,
+  kind: RegExp = /\.exe$/i,
 ): Promise<string> {
   const file = basename(name)
-  if (!/\.exe$/i.test(file)) throw new Error(`${file} isn't an installer`)
+  if (!kind.test(file)) throw new Error(`${file} isn't an installer`)
   await rm(dir, { recursive: true, force: true })
   await mkdir(dir, { recursive: true })
   const path = join(dir, file)

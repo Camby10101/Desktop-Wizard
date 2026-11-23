@@ -4,7 +4,7 @@ import type { Effort, Habits, Settings, Theme } from '@shared/types'
 import type { BubbleAnchor } from './bubble/BubbleController'
 import { startsAtSignIn } from './autoStart'
 import { adoptFormerLoginItem } from './formerName'
-import { FEATURES, OS } from './platform'
+import { OS } from './platform'
 import { readJsonFile, writeJsonFile } from './storage/jsonFile'
 
 /** Fast answers by default; Balanced and Thorough think longer. */
@@ -92,8 +92,7 @@ export class SettingsService {
       noHat: this.prefs.noHat ?? false,
       hideInFullScreen: this.prefs.hideInFullScreen ?? true,
       robeColor: this.prefs.robeColor ?? null,
-      // On a Mac an app is uninstalled by dragging it to the Bin (FEATURES.uninstall).
-      canUninstall: available && FEATURES.uninstall,
+      canUninstall: available,
     }
   }
 

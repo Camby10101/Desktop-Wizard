@@ -65,7 +65,7 @@ export interface IpcContext {
   /** The screen saver, which its own windows' pages wake (they aren't among `windows`). */
   screenSaver: { wakeFrom(senderId: number): void }
   /** Settings → Uninstall. */
-  uninstall(): UninstallResult
+  uninstall(): UninstallResult | Promise<UninstallResult>
   /** Stepping out of the way of full-screen apps, or null where it can't (not Windows). */
   fullScreen: { set(on: boolean): void } | null
   /** Whether the mouse pointer is over her window (showing) now. */

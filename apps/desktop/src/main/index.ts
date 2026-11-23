@@ -57,8 +57,7 @@ import { registerIpc, type BuiltInChat } from './ipc'
 import { createLog, type Log } from './log'
 import { mcpConnector } from './mcp/connector'
 import { sendInClaude } from './sendInClaude'
-import { uninstall } from './uninstall'
-import { INSTALLER_ARGS, saveDownload, Updater } from './updates'
+import { saveDownload, Updater } from './updates'
 import { NotesStore } from './notes/NotesStore'
 import { ScreenshotService } from './screenshots/ScreenshotService'
 import { myRequestsUrl, ServiceDesk, windowsVersion } from './serviceDesk'
@@ -87,7 +86,15 @@ import {
   type Tenant,
 } from './tenant'
 import { createTray } from './tray'
-import { FEATURES, OS, setUpApp } from './platform'
+import {
+  FEATURES,
+  installUpdate,
+  OS,
+  setUpApp,
+  uninstallApp,
+  UPDATE_FILE,
+  UPDATE_KIND,
+} from './platform'
 
 const SHUTDOWN_TIMEOUT_MS = 2000
 
@@ -484,13 +491,18 @@ async function start(): Promise<void> {
         downloads: `${updates.downloads}/${updates.repo}/releases/download/`,
         publicKey: updates.publicKey,
         fetch: netFetch,
+        // This OS's file from the release: Windows' installer, or the Mac app's zip.
+        installer: UPDATE_FILE,
         save: (name, chunks) =>
-          saveDownload(join(app.getPath('temp'), `${tenant.appName} update`), name, chunks),
-        // The installer runs on its own: it waits for this app to quit, replaces it, and starts
-        // the new version. A development run has no installed copy to replace.
-        install: app.isPackaged
-          ? (path) => spawn(path, INSTALLER_ARGS, { detached: true, stdio: 'ignore' }).unref()
-          : null,
+          saveDownload(
+            join(app.getPath('temp'), `${tenant.appName} update`),
+            name,
+            chunks,
+            UPDATE_KIND,
+          ),
+        // It installs on its own: it waits for this app to quit, replaces it, and starts the new
+        // version (platform.ts). A development run has no installed copy to replace.
+        install: app.isPackaged ? installUpdate : null,
         notify,
         quit: () => app.quit(),
         onState: (state) => {
@@ -498,7 +510,7 @@ async function start(): Promise<void> {
           if (state.status === 'downloaded') {
             log(
               `Development run: downloaded ${state.version} to ${state.path}; an installed copy ` +
-                `would now run it with ${INSTALLER_ARGS.join(' ')}`,
+                `would now install it`,
             )
           }
         },
@@ -636,16 +648,12 @@ async function start(): Promise<void> {
     pointerOverBubble: () =>
       bubbleWindow.isVisible() && isInside(screen.getCursorScreenPoint(), bubbleWindow.getBounds()),
     uninstall: () =>
-      uninstall({
-        isPackaged: app.isPackaged,
-        exePath: app.getPath('exe'),
-        productName: PRODUCT_NAME,
-        exists: existsSync,
-        stopStartingWithWindows: () => app.setLoginItemSettings({ openAtLogin: false }),
-        runDetached: (path) => spawn(path, [], { detached: true, stdio: 'ignore' }).unref(),
-        quit: () => app.quit(),
-        onError: (error) => log('Starting the uninstaller failed:', error),
-      }),
+      uninstallApp(
+        PRODUCT_NAME,
+        existsSync,
+        () => app.quit(),
+        (error) => log('Uninstalling failed:', error),
+      ),
     getState: () => ({
       mode: bubble.currentMode,
       corner: bubble.corner,

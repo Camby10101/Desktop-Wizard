@@ -64,8 +64,11 @@ module.exports = {
     // No Dock icon or Cmd+Tab entry, even as it starts: she lives on the screen, as she does on
     // Windows (see setUpApp in src/main/platform.ts).
     extendInfo: { LSUIElement: true },
-    // Needed for Apple to notarize it, once it's signed with a Developer ID (docs/MAC.md).
-    hardenedRuntime: true,
+    // Signed ad hoc: no Apple Developer ID, but Macs with Apple's own chips only run signed apps.
+    // (Ad hoc signing and the hardened runtime don't go together, and without a Developer ID it
+    // can't be notarized anyway.) Updates are checked against the release key instead.
+    identity: '-',
+    hardenedRuntime: false,
   },
   nsis: {
     oneClick: true,

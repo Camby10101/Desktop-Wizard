@@ -42,3 +42,35 @@ export function uninstall(deps: UninstallDeps): UninstallResult {
   deps.quit()
   return { ok: true }
 }
+
+export interface MacUninstallDeps {
+  /** Only an installed copy can be moved to the Bin; `npm run dev` can't. */
+  isPackaged: boolean
+  /** The app (appBundleOf the running copy), or null if it isn't one that can be. */
+  bundle: string | null
+  /** Turns "Open at login" off, so no login item is left behind. */
+  stopStartingAtLogin(): void
+  /** Moves a file or folder to the Bin. */
+  trash(path: string): Promise<void>
+  quit(): void
+  onError?(error: unknown): void
+}
+
+/**
+ * Removes Desktop Wizard from this Mac the way a Mac user does: moves the app to the Bin (from
+ * where it can still be put back), then quits. Its data (~/Library/Application Support/Desktop
+ * Wizard) and the screenshots in Pictures are kept.
+ */
+export async function uninstallMac(deps: MacUninstallDeps): Promise<UninstallResult> {
+  if (!deps.isPackaged) return { ok: false, reason: 'not-installed' }
+  if (!deps.bundle) return { ok: false, reason: 'missing' }
+  try {
+    deps.stopStartingAtLogin()
+    await deps.trash(deps.bundle)
+  } catch (error) {
+    deps.onError?.(error)
+    return { ok: false, reason: 'failed' }
+  }
+  deps.quit()
+  return { ok: true }
+}

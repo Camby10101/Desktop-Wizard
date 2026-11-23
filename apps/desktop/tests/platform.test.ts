@@ -11,12 +11,7 @@ describe('the operating systems', () => {
 
   it('keeps every feature on Windows, as it was before Mac support', () => {
     const windows = OS_FEATURES.windows
-    expect([windows.shellProbe, windows.sendInClaude, windows.updates, windows.uninstall]).toEqual([
-      true,
-      true,
-      true,
-      true,
-    ])
+    expect([windows.shellProbe, windows.sendInClaude, windows.updates]).toEqual([true, true, true])
     expect(windows.startAtLogin).toBe('Start with Windows')
     expect(windows.pasteKeys).toBe('Ctrl+V')
   })
@@ -27,7 +22,8 @@ describe('the operating systems', () => {
     // Windows-only for now (docs/MAC.md has the plan for each).
     expect(OS_FEATURES.mac.shellProbe).toBe(false)
     expect(OS_FEATURES.mac.sendInClaude).toBe(false)
-    expect(OS_FEATURES.mac.updates).toBe(false)
+    // Updates are checked against the release key, as on Windows: no Apple Developer ID needed.
+    expect(OS_FEATURES.mac.updates).toBe(true)
   })
 
   it('tells people the paste shortcut of their OS', () => {
